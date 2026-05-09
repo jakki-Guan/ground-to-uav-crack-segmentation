@@ -7,7 +7,8 @@ The current study centers on:
 - `U-Net` as the CNN baseline
 - `DeepLabV3+` as an additional ASPP-style CNN baseline
 - `Crack500` as the source-domain dataset
-- `DronePavSeg` or `UAV-PDD2023` as the UAV target-domain dataset
+- `UAV_Crack_Segmentation_Kaggle` as the primary UAV target benchmark
+- `PaveCrack1300` as an auxiliary UAV benchmark-sensitivity target
 
 See the full translated plan in [docs/research-plan.md](docs/research-plan.md).
 See the paper-facing roadmap in [docs/paper-plan-v4.md](docs/paper-plan-v4.md).
@@ -15,6 +16,22 @@ See the `AIC`-oriented writing outline in [docs/paper-outline-detailed-v1.md](do
 See the first `AIC` draft in [docs/paper-draft-intro-problem-method-v1.md](docs/paper-draft-intro-problem-method-v1.md).
 See the `Drones`-oriented fallback plan in [docs/paper-plan-drones-v1.md](docs/paper-plan-drones-v1.md).
 See the current baseline record in [docs/baseline-results.md](docs/baseline-results.md).
+See [DATASETS.md](DATASETS.md) for dataset setup, redistribution boundaries, and public-release notes.
+
+## Public Repository Scope
+
+This repository is structured as a public code-and-results companion rather than a full mirror of every local experiment artifact.
+
+- Included here:
+  - code for training, evaluation, split generation, and figure generation
+  - experiment logs and paper-facing summary assets
+  - documentation and writing notes
+- Not mirrored here:
+  - third-party raw datasets
+  - trained checkpoints
+  - large mined-bank exports, full audit-card directories, and local scratch artifacts
+
+The expected local dataset roots and preparation steps are documented in [DATASETS.md](DATASETS.md).
 
 ## Research Scope
 
@@ -49,25 +66,30 @@ As of `2026-05-04`, the workspace already includes:
 - `experiment_logger.py`: experiment logging helpers for reproducible CSV records, including split/config/threshold/postprocess metadata plus `IoU`, `F1`, `precision`, and `recall`
 - `make_b1_report_assets.py`: report-asset generator for the calibrated `B1` comparison
 - `make_uav_fewshot_splits.py`: reproducible `5% / 10% / 20%` few-shot split generator for `B2`
+- `split_uav_kaggle.py`: reproducible splitter for the primary `UAV_Crack_Segmentation_Kaggle` benchmark
+- `prepare_pavecrack1300.py`: import the public `PaveCrack1300` release into the repository's standard split-file dataset format
+- `mine_uav_hard_negatives.py`: mine target-background banks for `B1`-style follow-up experiments
 - `export_curated_hard_negative_bank.py`: export audited hard-negative crops into trainable curated bank roots
+- `paper_figures.py`: paper-facing figure helper module for dataset overview, mechanism, and `B2` supervision-scaling assets
 - `results/experiments.csv`: centralized experiment log
-- `generated/uav_hard_negatives_deeplabv3plus_plain_360_train_thr080/`: mined `DeepLabV3+` UAV hard-negative bank for future `B1`-style experiments
-- `generated/curated_banks/`: audit-filtered `DeepLabV3+` curated bank exports for `hard_fp` and `hard_fp + ambiguous` follow-up studies
 - `notebooks/03_test_visualization.ipynb`: qualitative review notebook for fixed test samples and failure cases
 - `notebooks/06_round1_experiments.ipynb`: compact comparison dashboard for logged round-1 runs
 - `notebooks/07_uav_crossdomain_diagnosis.ipynb`: UAV cross-domain diagnosis and threshold analysis
 - `notebooks/10_segformer_audit_followup.ipynb`: compact SegFormer audit summary with keepable-share plots, curated-vs-raw comparison, and representative review-card browser
+- `notebooks/11_paper_figures.ipynb`: notebook entry point for exported paper-facing figures
 - `docs/paper-outline-detailed-v1.md`: detailed `AIC`-oriented writing outline with section logic, claim boundaries, and figure/table checklist
 - `docs/paper-draft-intro-problem-method-v1.md`: first `AIC` prose draft for `Introduction`, `Problem Setting`, and `Method`
 - `docs/paper-plan-drones-v1.md`: separate `Drones`-oriented paper plan built from the same frozen experiments
-- `CRACK500/`: downloaded source-domain dataset with split files
-- `UAV_Crack_Segmentation_Kaggle/`: UAV target-domain dataset in split-file format
+
+Public-release note:
+
+- Third-party raw datasets, trained checkpoints, large generated crop banks, and full audit-card exports are intentionally not mirrored in the repository.
+- Use [DATASETS.md](DATASETS.md) to reconstruct the expected local dataset layout before running the training or evaluation scripts.
 
 Still pending:
 - full `Related Work`, `Experiments`, and `Results` drafting
 - venue-specific abstract and contribution polishing for `AIC` and `Drones`
 - main-table / audit-taxonomy / few-shot figure polishing for the paper
-- `DeepLabV3+` target-domain upper-bound and few-shot follow-up
 
 ## U-Net Ablation Outcome
 
@@ -277,6 +299,17 @@ Current `B2` interpretation:
 - The smallest `DeepLabV3+` few-shot split is more sensitive to early stopping than the in-domain `Crack500` runs; increasing patience from `5` to `12` improved the `fs05` validation checkpoint.
 - The fixed-hold-out `B2` test curve is now confirmed end to end: `fs05_pat12 -> fs10 -> fs20` improves `IoU` from `0.3599 -> 0.4354 -> 0.4760`.
 
+DeepLab target-domain upper bound:
+
+- `deeplabv3plus_uav_indomain_plain_360`
+  - best validation `IoU = 0.5068`, `F1 = 0.6677`, best `epoch 37`
+  - fixed-hold-out test: `IoU = 0.5085`, `F1 = 0.6693`, `precision = 0.6187`, `recall = 0.7295`
+
+Current upper-bound interpretation:
+
+- This run now gives `DeepLabV3+` a ceiling row under the same `UAV train / val / test`, `360`, `baseline`, `40`-epoch protocol already used for the `SegFormer-B2` upper bound.
+- The remaining gap above `DeepLabV3+ fs20` is modest (`0.4760 -> 0.5085`), so limited target supervision already recovers a large fraction of the target-domain ceiling for this backbone too.
+
 ## Cross-Domain UAV Status
 
 The first `Crack500 -> UAV_Crack_Segmentation_Kaggle` cross-domain evaluation round is now in place, and the dataset now has both an exploratory full split and a fixed official hold-out split.
@@ -425,7 +458,7 @@ Important evaluation rule:
 
 ```text
 .
-├── CRACK500/               # source-domain dataset and split files
+├── DATASETS.md             # dataset setup and redistribution notes
 ├── dataset.py              # dataset loader and transforms
 ├── model.py                # segmentation model factory
 ├── loss.py                 # training loss
@@ -435,5 +468,6 @@ Important evaluation rule:
 ├── train.py                # training entry point
 ├── test.py                 # test-set evaluation from saved checkpoint
 ├── notebooks/              # EDA and qualitative visualization notebooks
+├── results/                # experiment logs and paper-facing report assets
 └── docs/                   # planning and baseline records
 ```

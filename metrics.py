@@ -1,61 +1,102 @@
 import torch
 
-def iou_score(preds, targets, threshold=0.5,eps=1e-6):
-    """
-    Calculate the Intersection over Union (IoU) score.
+from postprocess import ConnectedComponentPostprocessConfig, logits_to_binary_mask
 
-    Args:
-        preds (torch.Tensor): Predicted probabilities (logits) of shape (N, C, H, W).
-        targets (torch.Tensor): Ground truth binary masks of shape (N, C, H, W).
-        threshold (float): Threshold to convert predicted probabilities to binary masks.
 
-    Returns:
-        float: IoU score.
-    """
-    # Apply sigmoid to get probabilities and then threshold to get binary masks
-    probs = torch.sigmoid(preds)
-    preds_binary = (probs > threshold).float()
+def confusion_stats(
+    preds,
+    targets,
+    threshold: float = 0.5,
+    eps: float = 1e-6,
+    postprocess_config: ConnectedComponentPostprocessConfig | None = None,
+):
+    preds_binary = logits_to_binary_mask(
+        logits=preds,
+        threshold=threshold,
+        postprocess_config=postprocess_config,
+    )
 
-    # Flatten the tensors
-    preds_flat = preds_binary.view(-1)
-    targets_flat = targets.view(-1)
+    preds_flat = preds_binary.reshape(-1)
+    targets_flat = targets.reshape(-1)
 
-    # Calculate intersection and union
-    intersection = (preds_flat * targets_flat).sum()
-    union = preds_flat.sum() + targets_flat.sum() - intersection
-
-    # Calculate IoU
-    iou = (intersection + eps) / (union + eps)
-
-    return iou.item()
-
-def f1_score(preds, targets, threshold=0.5, eps=1e-6):
-    """
-    Calculate the F1 score.
-
-    Args:
-        preds (torch.Tensor): Predicted probabilities (logits) of shape (N, C, H, W).
-        targets (torch.Tensor): Ground truth binary masks of shape (N, C, H, W).
-        threshold (float): Threshold to convert predicted probabilities to binary masks.
-
-    Returns:
-        float: F1 score.
-    """
-    # Apply sigmoid to get probabilities and then threshold to get binary masks
-    probs = torch.sigmoid(preds)
-    preds_binary = (probs > threshold).float()
-
-    # Flatten the tensors
-    preds_flat = preds_binary.view(-1)
-    targets_flat = targets.view(-1)
-
-    # Calculate true positives, false positives, and false negatives
     tp = (preds_flat * targets_flat).sum()
     fp = (preds_flat * (1 - targets_flat)).sum()
     fn = ((1 - preds_flat) * targets_flat).sum()
-
-    # Calculate F1 score
+    precision = (tp + eps) / (tp + fp + eps)
+    recall = (tp + eps) / (tp + fn + eps)
     f1 = (2 * tp + eps) / (2 * tp + fp + fn + eps)
+    iou = (tp + eps) / (tp + fp + fn + eps)
+
+    return {
+        "tp": tp.item(),
+        "fp": fp.item(),
+        "fn": fn.item(),
+        "precision": precision.item(),
+        "recall": recall.item(),
+        "f1": f1.item(),
+        "iou": iou.item(),
+    }
 
 
-    return f1.item()
+def precision_score(
+    preds,
+    targets,
+    threshold: float = 0.5,
+    eps: float = 1e-6,
+    postprocess_config: ConnectedComponentPostprocessConfig | None = None,
+):
+    return confusion_stats(
+        preds,
+        targets,
+        threshold=threshold,
+        eps=eps,
+        postprocess_config=postprocess_config,
+    )["precision"]
+
+
+def recall_score(
+    preds,
+    targets,
+    threshold: float = 0.5,
+    eps: float = 1e-6,
+    postprocess_config: ConnectedComponentPostprocessConfig | None = None,
+):
+    return confusion_stats(
+        preds,
+        targets,
+        threshold=threshold,
+        eps=eps,
+        postprocess_config=postprocess_config,
+    )["recall"]
+
+
+def iou_score(
+    preds,
+    targets,
+    threshold: float = 0.5,
+    eps: float = 1e-6,
+    postprocess_config: ConnectedComponentPostprocessConfig | None = None,
+):
+    return confusion_stats(
+        preds,
+        targets,
+        threshold=threshold,
+        eps=eps,
+        postprocess_config=postprocess_config,
+    )["iou"]
+
+
+def f1_score(
+    preds,
+    targets,
+    threshold: float = 0.5,
+    eps: float = 1e-6,
+    postprocess_config: ConnectedComponentPostprocessConfig | None = None,
+):
+    return confusion_stats(
+        preds,
+        targets,
+        threshold=threshold,
+        eps=eps,
+        postprocess_config=postprocess_config,
+    )["f1"]

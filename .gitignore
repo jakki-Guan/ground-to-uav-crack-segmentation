@@ -1,8 +1,12 @@
 CRACK500/
+UAV_Crack_Segmentation_Kaggle/
+PaveCrack1300/
+PaveCrack1300_raw/
 checkpoints/
 __pycache__/
 *.py[cod]
 *.zip
+*.pth
 
 # Local tooling/editor state
 .vscode/
@@ -16,3 +20,8 @@ check_transform_alignment.png
 # Notebook/runtime caches
 .ipynb_checkpoints/
 notebooks/02_predict.ipynb
+
+# Large generated artifacts and local scratch space
+generated/
+tmp/
+results/hard_negative_audit/

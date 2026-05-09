@@ -1,0 +1,13 @@
+dataset_key,dataset_label,category,sample_id,image_rel,mask_rel,split_file,width,height,fg_ratio_pct
+crack500,Crack500,Random 1,20160306_104522_1281_1081,traincrop/20160306_104522_1281_1081.jpg,traincrop/20160306_104522_1281_1081.png,train.txt,640,360,0.6106770833333333
+crack500,Crack500,Random 2,20160326_142349_1281_1,traincrop/20160326_142349_1281_1.jpg,traincrop/20160326_142349_1281_1.png,train.txt,640,360,1.4401041666666665
+crack500,Crack500,Random 3,20160328_153556_1281_1081,traincrop/20160328_153556_1281_1081.jpg,traincrop/20160328_153556_1281_1081.png,train.txt,640,360,8.99782986111111
+crack500,Crack500,Random 4,20160330_165644_1_721,traincrop/20160330_165644_1_721.jpg,traincrop/20160330_165644_1_721.png,train.txt,640,360,12.822482638888888
+uav_kaggle,Kaggle UAV crack dataset,Random 1,slide1062,images/slide1062.png,masks/slide1062.png,crossdomain_all.txt,448,448,0.8619658801020409
+uav_kaggle,Kaggle UAV crack dataset,Random 2,slide1149,images/slide1149.png,masks/slide1149.png,crossdomain_all.txt,448,448,0.8051658163265305
+uav_kaggle,Kaggle UAV crack dataset,Random 3,slide1606,images/slide1606.png,masks/slide1606.png,crossdomain_all.txt,448,448,0.6357621173469388
+uav_kaggle,Kaggle UAV crack dataset,Random 4,slide491,images/slide491.png,masks/slide491.png,crossdomain_all.txt,448,448,0.7672991071428571
+pavecrack1300,PaveCrack1300,Random 1,crack_0495,images/crack_0495.jpg,masks/crack_0495.png,crossdomain_all.txt,512,512,5.1174163818359375
+pavecrack1300,PaveCrack1300,Random 2,crack_0517,images/crack_0517.jpg,masks/crack_0517.png,crossdomain_all.txt,512,512,5.353546142578125
+pavecrack1300,PaveCrack1300,Random 3,crack_0927,images/crack_0927.jpg,masks/crack_0927.png,crossdomain_all.txt,512,512,23.26202392578125
+pavecrack1300,PaveCrack1300,Random 4,crack_1208,images/crack_1208.jpg,masks/crack_1208.png,crossdomain_all.txt,512,512,16.202545166015625
