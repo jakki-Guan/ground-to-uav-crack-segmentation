@@ -27,7 +27,7 @@ def parse_args():
     parser.add_argument(
         "--audit-csv",
         default="results/hard_negative_audit/deeplabv3plus_tsbank_round1/audit_samples.csv",
-        help="Audit CSV produced by make_hard_negative_audit_assets.py.",
+        help="Audit CSV produced by scripts/banks/make_hard_negative_audit_assets.py.",
     )
     parser.add_argument(
         "--bank-overview-csv",

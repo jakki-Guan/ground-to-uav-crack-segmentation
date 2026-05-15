@@ -2,9 +2,14 @@ import argparse
 import csv
 from argparse import Namespace
 from pathlib import Path
+import sys
 
 import torch
 from torch.utils.data import DataLoader
+
+REPO_ROOT = Path(__file__).resolve().parents[2]
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
 
 from dataset import CrackDataset
 from experiment_logger import append_experiment_record, build_experiment_record

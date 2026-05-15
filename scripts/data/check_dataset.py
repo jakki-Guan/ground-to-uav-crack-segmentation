@@ -7,23 +7,31 @@ Dataset sanity checks:
 """
 
 import random
+from pathlib import Path
+import sys
 import numpy as np
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 import torch
+
+REPO_ROOT = Path(__file__).resolve().parents[2]
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
 from dataset import CrackDataset, get_transforms
 
 ROOT = "CRACK500"
 SEED = 42
+DIAGNOSTICS_DIR = Path("generated/diagnostics")
 random.seed(SEED)
 np.random.seed(SEED)
 torch.manual_seed(SEED)
 
 
 # ── 1. Raw visualization: 20 random samples ──────────────────────────────────
-def plot_raw_samples(ds, n=20, out="check_raw_samples.png"):
+def plot_raw_samples(ds, n=20, out=DIAGNOSTICS_DIR / "check_raw_samples.png"):
     indices = random.sample(range(len(ds)), n)
     fig, axes = plt.subplots(n, 3, figsize=(12, n * 2))
     fig.suptitle("Raw samples — image / mask / overlay", fontsize=13)
@@ -49,6 +57,7 @@ def plot_raw_samples(ds, n=20, out="check_raw_samples.png"):
             axes[row, 2].set_title("Overlay")
 
     plt.tight_layout()
+    Path(out).parent.mkdir(parents=True, exist_ok=True)
     plt.savefig(out, dpi=80, bbox_inches="tight")
     print(f"[1] Raw sample grid saved → {out}")
 
@@ -92,7 +101,11 @@ def check_sizes(ds, n=300):
 
 
 # ── 4. Transform alignment check ─────────────────────────────────────────────
-def check_transform_alignment(ds_train, n=20, out="check_transform_alignment.png"):
+def check_transform_alignment(
+    ds_train,
+    n=20,
+    out=DIAGNOSTICS_DIR / "check_transform_alignment.png",
+):
     indices = random.sample(range(len(ds_train)), n)
     mean = np.array([0.485, 0.456, 0.406])
     std  = np.array([0.229, 0.224, 0.225])
@@ -124,6 +137,7 @@ def check_transform_alignment(ds_train, n=20, out="check_transform_alignment.png
             print(f"    [WARN] idx={idx} post-transform mask has values: {unique}")
 
     plt.tight_layout()
+    Path(out).parent.mkdir(parents=True, exist_ok=True)
     plt.savefig(out, dpi=80, bbox_inches="tight")
     print(f"[4] Transform alignment grid saved → {out}")
 

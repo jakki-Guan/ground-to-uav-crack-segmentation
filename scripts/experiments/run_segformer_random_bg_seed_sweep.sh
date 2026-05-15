@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+cd "$REPO_ROOT"
+
 SEEDS=("$@")
 if [ ${#SEEDS[@]} -eq 0 ]; then
   SEEDS=(7 13)
@@ -16,7 +20,7 @@ for seed in "${SEEDS[@]}"; do
   experiment_name="segformer_b2_b1_random_bg_thr080_mean082_${tag}_uavval"
 
   echo "=== Exporting random-background bank for ${tag} ==="
-  python export_random_background_bank.py \
+  python scripts/banks/export_random_background_bank.py \
     --dataset-root "$DATASET_ROOT" \
     --split train \
     --reference-bank-root "$REFERENCE_BANK_ROOT" \

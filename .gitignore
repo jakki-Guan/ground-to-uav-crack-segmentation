@@ -13,10 +13,6 @@ __pycache__/
 .codex
 .claude/
 
-# Generated analysis artifacts
-check_raw_samples.png
-check_transform_alignment.png
-
 # Notebook/runtime caches
 .ipynb_checkpoints/
 notebooks/02_predict.ipynb

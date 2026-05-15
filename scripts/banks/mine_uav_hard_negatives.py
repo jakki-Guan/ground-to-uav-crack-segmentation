@@ -1,11 +1,16 @@
 import argparse
 import json
 from pathlib import Path
+import sys
 
 import cv2
 import numpy as np
 from PIL import Image
 import torch
+
+REPO_ROOT = Path(__file__).resolve().parents[2]
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
 
 from dataset import CrackDataset
 from model import SEGFORMER_B2_MODEL_NAME, get_model
@@ -29,7 +34,7 @@ def parse_args():
         "--temperature-json",
         default=None,
         help=(
-            "Optional temperature-scaling JSON from fit_temperature.py. "
+            "Optional temperature-scaling JSON from scripts/banks/fit_temperature.py. "
             "When provided, hard-negative mining uses sigmoid(logits / temperature)."
         ),
     )

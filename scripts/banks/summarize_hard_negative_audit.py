@@ -32,7 +32,7 @@ def parse_args():
     parser.add_argument(
         "--audit-csv",
         required=True,
-        help="Path to audit_samples.csv produced by make_hard_negative_audit_assets.py.",
+        help="Path to audit_samples.csv produced by scripts/banks/make_hard_negative_audit_assets.py.",
     )
     parser.add_argument(
         "--bank-label",
