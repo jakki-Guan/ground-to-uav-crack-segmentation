@@ -1,0 +1,15 @@
+Observed dataset page: UAV-Based Crack Detection Dataset
+Source URL: https://www.kaggle.com/datasets/ziya07/uav-based-crack-detection-dataset
+Access date: 2026-06-04
+
+Observed page metadata at access time:
+- license.name = CC0: Public Domain
+- license.url = https://creativecommons.org/publicdomain/zero/1.0/
+
+This file records the license label observed on the Kaggle dataset page at access time. It is not independent legal advice.
+
+Important caveat:
+- Creative Commons states that CC0 does not affect other persons' privacy or publicity rights, and does not affect trademark or patent rights.
+- Creative Commons also disclaims warranties about a work or its copyright status.
+
+Use the accompanying source URL, evidence image, file list, and SHA-256 manifest for provenance.

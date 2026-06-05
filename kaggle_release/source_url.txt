@@ -1,0 +1,5 @@
+Title: UAV-Based Crack Detection Dataset
+URL: https://www.kaggle.com/datasets/ziya07/uav-based-crack-detection-dataset
+Access date: 2026-06-04
+Observed license label: CC0: Public Domain
+Observed license URL: https://creativecommons.org/publicdomain/zero/1.0/

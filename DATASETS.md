@@ -1,11 +1,12 @@
 # Dataset And Artifact Availability
 
-This repository is intended to be released as a public code-and-results companion for the paper-facing benchmark study. It does **not** mirror third-party raw datasets, trained checkpoints, or large intermediate artifact exports.
+This repository is intended to be released as a public code-and-results companion for the paper-facing benchmark study. It mirrors the Kaggle UAV crack dataset under [kaggle_release](kaggle_release) with provenance files, but it does **not** mirror `Crack500`, `PaveCrack1300`, trained checkpoints, or large intermediate artifact exports.
 
 ## Included In The Public Repository
 
 - training, evaluation, split-generation, and figure-generation code
 - environment files and public wrapper entrypoints
+- the mirrored Kaggle UAV release under [kaggle_release](kaggle_release)
 - tracked split manifests under [split_manifests](split_manifests)
 - experiment logs such as [results/experiments.csv](results/experiments.csv)
 - paper-facing summary assets under [results/report_assets](results/report_assets)
@@ -13,9 +14,8 @@ This repository is intended to be released as a public code-and-results companio
 
 ## Not Mirrored In The Public Repository
 
-- third-party raw datasets:
+- raw datasets not mirrored here:
   - `CRACK500/`
-  - `UAV_Crack_Segmentation_Kaggle/`
   - `PaveCrack1300/`
   - `PaveCrack1300_raw/`
 - trained model checkpoints under `checkpoints/`
@@ -23,14 +23,14 @@ This repository is intended to be released as a public code-and-results companio
 - full audit-card exports under `results/hard_negative_audit/`
 - local scratch outputs under `tmp/`
 
-These items are omitted to avoid redistributing third-party data, reduce repository size, and keep the public release focused on reproducible code and frozen paper-facing summaries.
+These items are omitted to avoid redistributing restricted third-party data, reduce repository size, and keep the public release focused on reproducible code and frozen paper-facing summaries.
 
 ## Dataset Roles
 
 | Dataset | Paper role | Expected local root | Redistribution in this repo |
 | --- | --- | --- | --- |
 | `Crack500` | source-domain training dataset | `CRACK500/` | not mirrored |
-| `UAV_Crack_Segmentation_Kaggle` | primary UAV target benchmark | `UAV_Crack_Segmentation_Kaggle/` | raw data not mirrored; fixed split manifests are mirrored |
+| `UAV_Crack_Segmentation_Kaggle` | primary UAV target benchmark | `UAV_Crack_Segmentation_Kaggle/` | mirrored under `kaggle_release/` with provenance; fixed split manifests are mirrored |
 | `PaveCrack1300` | auxiliary UAV benchmark-sensitivity target | `PaveCrack1300/` | raw data not mirrored; fixed split manifests are mirrored |
 
 ## Expected Local Layout
@@ -64,6 +64,7 @@ python scripts/data/split_uav_kaggle.py \
 
 This creates `train.txt`, `val.txt`, `test.txt`, `crossdomain_all.txt`, and `split_manifest.json` under the dataset root.
 The frozen public copies of those files are mirrored under [split_manifests](split_manifests).
+The raw `images/` and `masks/` are mirrored publicly under [kaggle_release](kaggle_release), together with `LICENSE_KAGGLE_CC0.txt`, `kaggle_license_screenshot.png`, `source_url.txt`, `filelist.csv`, and `sha256_manifest.csv`.
 
 ### PaveCrack1300
 
@@ -90,7 +91,7 @@ Before publishing the repository, review notebook outputs carefully. Jupyter not
 
 The public repository is **not** intended to act as a full mirror for:
 
-- raw third-party imagery
+- raw `Crack500` or `PaveCrack1300` imagery
 - all intermediate mined banks or review-card exports
 - all trained checkpoints from every ablation
 
@@ -98,4 +99,4 @@ The public repository is **not** intended to act as a full mirror for:
 
 If you need a compact manuscript statement, the following wording matches this repository structure:
 
-> The source datasets used in this study are publicly available from their respective providers, including Crack500, the UAV Crack Segmentation Kaggle dataset, and PaveCrack1300. The code, experiment logs, split-generation scripts, and paper-facing result assets supporting the findings of this study are publicly available in the project repository. Due to third-party dataset licensing and repository-size constraints, raw dataset files, trained checkpoints, and large intermediate artifact exports are not mirrored in the repository.
+> The source datasets used in this study are publicly available from their respective providers, including Crack500, the UAV Crack Segmentation Kaggle dataset, and PaveCrack1300. The code, experiment logs, split-generation scripts, and paper-facing result assets supporting the findings of this study are publicly available in the project repository. The Kaggle UAV crack dataset is mirrored in the repository because its Kaggle page listed `CC0: Public Domain` at the time of access; provenance files are included alongside the mirror. Other raw dataset files, trained checkpoints, and large intermediate artifact exports are not mirrored in the repository.

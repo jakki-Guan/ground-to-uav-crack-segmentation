@@ -25,6 +25,7 @@ See [DATASETS.md](DATASETS.md) for dataset setup, redistribution boundaries, and
 The public-facing repo entrypoints are intentionally shallow:
 
 - environment setup: [environment.yml](environment.yml) and [environment-daformer.yml](environment-daformer.yml)
+- mirrored Kaggle UAV dataset with provenance: [kaggle_release](kaggle_release)
 - fixed dataset splits: [split_manifests](split_manifests)
 - `B1` bank presets and wrapper: [b1_bank_configs](b1_bank_configs)
 - public evaluation entrypoints: [evaluation](evaluation), [evaluate_fixed_test.py](evaluate_fixed_test.py), [threshold_selection.py](threshold_selection.py)
@@ -43,7 +44,7 @@ python figures_generation/generate_kaggle_progression_figure.py --help
 
 This repository contains the code, configuration files, dataset split manifests, `B1` background-bank configuration files, evaluation scripts, figure-generation utilities, and lightweight result summaries used for the JSTARS manuscript.
 
-The original datasets are not redistributed. Please download `Crack500`, the Kaggle UAV crack dataset, and `PaveCrack1300` from their official sources, then use the provided split manifests under `split_manifests/`.
+`Crack500` and `PaveCrack1300` are not redistributed here. The Kaggle UAV crack dataset is redistributed under [kaggle_release](kaggle_release) because the Kaggle dataset page listed its license as `CC0: Public Domain` at the time of access. A license evidence file, access-time capture, source URL, file list, and `SHA-256` checksums are provided for provenance. Users should also consult the original Kaggle page when available, use the fixed split manifests under `split_manifests/`, and review privacy/publicity concerns before further redistribution.
 
 Large generated files are intentionally excluded, including patchwise overlays, prediction masks, training work directories, and run logs.
 
@@ -55,13 +56,14 @@ This repository is structured as a public code-and-results companion rather than
 
 - Included here:
   - code for training, evaluation, split generation, and figure generation
+  - a mirrored Kaggle UAV dataset release with provenance files
   - public split manifests for the fixed Kaggle and PaveCrack1300 protocols
   - public wrapper entrypoints for `B1`, evaluation, and figure generation
   - reproducible environment files for the main stack and the DAFormer/HRDA compatibility stack
   - experiment logs and paper-facing summary assets
   - documentation and writing notes
 - Not mirrored here:
-  - third-party raw datasets
+  - `Crack500` and `PaveCrack1300` raw datasets
   - trained checkpoints
   - large mined-bank exports, full audit-card directories, and local scratch artifacts
 
@@ -137,7 +139,8 @@ As of `2026-05-24`, the workspace already includes:
 
 Public-release note:
 
-- Third-party raw datasets, trained checkpoints, large generated crop banks, and full audit-card exports are intentionally not mirrored in the repository.
+- `Crack500` and `PaveCrack1300` raw datasets, trained checkpoints, large generated crop banks, and full audit-card exports are intentionally not mirrored in the repository.
+- The primary Kaggle UAV dataset is mirrored separately under [kaggle_release](kaggle_release) with provenance files because its Kaggle page listed `CC0: Public Domain` at the time of access.
 - Use [DATASETS.md](DATASETS.md) to reconstruct the expected local dataset layout before running the training or evaluation scripts.
 
 Still pending:
