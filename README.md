@@ -135,7 +135,8 @@ Additional public support assets:
 
 - GPU: `NVIDIA GeForce RTX 4070 SUPER (12GB VRAM)`
 - OS: `Windows 11 + WSL2 Ubuntu`
-- CUDA: `13.1`
+- NVIDIA driver CUDA version (`nvidia-smi`): `13.2`
+- PyTorch: `torch 2.11.0+cu130` (`torch.version.cuda = 13.0`)
 - Python: `3.10` in conda environment `crackdet`
 - Main libraries: `PyTorch`, `HuggingFace Transformers`, `segmentation-models-pytorch`, `albumentations`
 
