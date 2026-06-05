@@ -11,8 +11,8 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-from dataset import CrackDataset
-from model import SEGFORMER_B2_MODEL_NAME, get_model
+from crack_detection.dataset import CrackDataset
+from crack_detection.model import SEGFORMER_B2_MODEL_NAME, get_model
 
 
 def parse_args():

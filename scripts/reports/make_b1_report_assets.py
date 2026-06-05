@@ -14,11 +14,11 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-from dataset import CrackDataset
-from loss import build_loss
-from metrics import confusion_stats
-from model import SEGFORMER_B2_MODEL_NAME, get_model
-from postprocess import (
+from crack_detection.dataset import CrackDataset
+from crack_detection.loss import build_loss
+from crack_detection.metrics import confusion_stats
+from crack_detection.model import SEGFORMER_B2_MODEL_NAME, get_model
+from crack_detection.postprocess import (
     ConnectedComponentPostprocessConfig,
     build_postprocess_config,
     filter_connected_components,

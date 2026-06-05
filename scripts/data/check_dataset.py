@@ -20,7 +20,7 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-from dataset import CrackDataset, get_transforms
+from crack_detection.dataset import CrackDataset, get_transforms
 
 ROOT = "CRACK500"
 SEED = 42

@@ -25,6 +25,7 @@ See [DATASETS.md](DATASETS.md) for dataset setup, redistribution boundaries, and
 The public-facing repo entrypoints are intentionally shallow:
 
 - environment setup: [environment.yml](environment.yml) and [environment-daformer.yml](environment-daformer.yml)
+- core Python package: [crack_detection](crack_detection)
 - mirrored Kaggle UAV dataset with provenance: [kaggle_release](kaggle_release)
 - fixed dataset splits: [split_manifests](split_manifests)
 - `B1` bank presets and wrapper: [b1_bank_configs](b1_bank_configs)
@@ -102,15 +103,11 @@ Reporting principle:
 ## Current Repository Status
 
 As of `2026-05-24`, the workspace already includes:
-- `dataset.py`: `CrackDataset` plus Albumentations-based transforms
-- `model.py`: segmentation model factory for `Unet`, `FPN`, `Linknet`, `PSPNet`, `DeepLabV3+`, and `SegFormer-B2`
-- `loss.py`: configurable `BCE + Dice`, `Tversky`, and `Focal Tversky` losses
-- `metrics.py`: `IoU` and `F1` metrics
-- `postprocess.py`: optional connected-component filtering for deployment-oriented evaluation
+- `crack_detection/`: core package containing `CrackDataset`, model builders, losses, metrics, postprocessing, and experiment logging helpers
 - `scripts/data/check_dataset.py`: dataset sanity-check and visualization utilities
 - `train.py`: configurable baseline training with validation checkpointing and early stopping
 - `test.py`: configurable checkpoint evaluation for the saved model
-- `experiment_logger.py`: experiment logging helpers for reproducible CSV records, including split/config/threshold/postprocess metadata plus `IoU`, `F1`, `precision`, and `recall`
+- root-level `dataset.py`, `model.py`, `loss.py`, `metrics.py`, `postprocess.py`, and `experiment_logger.py`: compatibility shims that preserve older imports
 - `scripts/reports/make_b1_report_assets.py`: report-asset generator for the calibrated `B1` comparison
 - `scripts/reports/make_retention_report_assets.py`: report-asset generator for source-domain retention back-tests, `Kaggle test` bootstrap confidence intervals, and optional skeleton metrics
 - `scripts/data/make_uav_fewshot_splits.py`: reproducible `5% / 10% / 20%` few-shot split generator for `B2`
@@ -576,11 +573,12 @@ Important evaluation rule:
 ├── DATASETS.md             # dataset setup and redistribution notes
 ├── environment.yml         # main public environment
 ├── environment-daformer.yml  # DAFormer/HRDA compatibility environment
-├── dataset.py              # dataset loader and transforms
-├── model.py                # segmentation model factory
-├── loss.py                 # training loss
-├── metrics.py              # evaluation metrics
-├── postprocess.py          # optional deployment-oriented output filtering
+├── crack_detection/        # core Python package
+├── dataset.py              # compatibility shim for crack_detection.dataset
+├── model.py                # compatibility shim for crack_detection.model
+├── loss.py                 # compatibility shim for crack_detection.loss
+├── metrics.py              # compatibility shim for crack_detection.metrics
+├── postprocess.py          # compatibility shim for crack_detection.postprocess
 ├── b1_bank_configs/        # public B1 presets and wrapper
 ├── evaluation/             # public evaluation entrypoints
 ├── figures_generation/     # public figure-generation entrypoints

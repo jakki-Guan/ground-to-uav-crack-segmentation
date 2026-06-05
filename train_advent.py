@@ -10,12 +10,12 @@ import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader
 
-from dataset import CrackDataset
-from experiment_logger import append_experiment_record, build_experiment_record
-from loss import build_loss
-from metrics import confusion_stats
-from model import SEGFORMER_B2_MODEL_NAME, canonical_model_name, get_model
-from postprocess import build_postprocess_config
+from crack_detection.dataset import CrackDataset
+from crack_detection.experiment_logger import append_experiment_record, build_experiment_record
+from crack_detection.loss import build_loss
+from crack_detection.metrics import confusion_stats
+from crack_detection.model import SEGFORMER_B2_MODEL_NAME, canonical_model_name, get_model
+from crack_detection.postprocess import build_postprocess_config
 
 
 def parse_args():

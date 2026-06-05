@@ -17,9 +17,9 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-from dataset import IMAGENET_MEAN, IMAGENET_STD
-from model import SEGFORMER_B2_MODEL_NAME, get_model
-from postprocess import build_postprocess_config, filter_connected_components
+from crack_detection.dataset import IMAGENET_MEAN, IMAGENET_STD
+from crack_detection.model import SEGFORMER_B2_MODEL_NAME, get_model
+from crack_detection.postprocess import build_postprocess_config, filter_connected_components
 
 
 @dataclass(frozen=True)

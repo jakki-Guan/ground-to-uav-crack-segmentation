@@ -11,11 +11,11 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-from dataset import CrackDataset
-from experiment_logger import append_experiment_record, build_experiment_record
-from loss import build_loss
-from metrics import f1_score, iou_score
-from model import get_model
+from crack_detection.dataset import CrackDataset
+from crack_detection.experiment_logger import append_experiment_record, build_experiment_record
+from crack_detection.loss import build_loss
+from crack_detection.metrics import f1_score, iou_score
+from crack_detection.model import get_model
 
 
 def parse_args():
