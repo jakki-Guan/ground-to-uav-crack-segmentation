@@ -10,11 +10,6 @@ The current study centers on:
 - `UAV_Crack_Segmentation_Kaggle` as the primary UAV target benchmark
 - `PaveCrack1300` as an auxiliary UAV benchmark-sensitivity target
 
-See the full translated plan in [docs/research-plan.md](docs/research-plan.md).
-See the paper-facing roadmap in [docs/paper-plan-v4.md](docs/paper-plan-v4.md).
-See the `AIC`-oriented writing outline in [docs/paper-outline-detailed-v1.md](docs/paper-outline-detailed-v1.md).
-See the first `AIC` draft in [docs/paper-draft-intro-problem-method-v1.md](docs/paper-draft-intro-problem-method-v1.md).
-See the `Drones`-oriented fallback plan in [docs/paper-plan-drones-v1.md](docs/paper-plan-drones-v1.md).
 See the current baseline record in [docs/baseline-results.md](docs/baseline-results.md).
 See the DAFormer reviewer-baseline setup record in [docs/daformer-baseline.md](docs/daformer-baseline.md).
 See the HRDA reviewer-baseline setup record in [docs/hrda-baseline.md](docs/hrda-baseline.md).
@@ -130,9 +125,6 @@ As of `2026-05-24`, the workspace already includes:
 - `notebooks/07_uav_crossdomain_diagnosis.ipynb`: UAV cross-domain diagnosis and threshold analysis
 - `notebooks/10_segformer_audit_followup.ipynb`: compact SegFormer audit summary with keepable-share plots, curated-vs-raw comparison, and representative review-card browser
 - `notebooks/11_paper_figures.ipynb`: notebook entry point for exported paper-facing figures
-- `docs/paper-outline-detailed-v1.md`: detailed `AIC`-oriented writing outline with section logic, claim boundaries, and figure/table checklist
-- `docs/paper-draft-intro-problem-method-v1.md`: first `AIC` prose draft for `Introduction`, `Problem Setting`, and `Method`
-- `docs/paper-plan-drones-v1.md`: separate `Drones`-oriented paper plan built from the same frozen experiments
 
 Public-release note:
 
@@ -142,7 +134,7 @@ Public-release note:
 
 Still pending:
 - full `Related Work`, `Experiments`, and `Results` drafting
-- venue-specific abstract and contribution polishing for `AIC` and `Drones`
+- JSTARS manuscript polishing and figure/table refinement
 - main-table / audit-taxonomy / few-shot figure polishing for the paper
 
 ## U-Net Ablation Outcome
@@ -194,7 +186,7 @@ Current interpretation:
   - `metric_precision` and `metric_recall` in addition to `loss`, `IoU`, and `F1`
 - The CSV migration has already been applied in place, so future appends use one unified header.
 - Older rows created before this schema upgrade may still have empty values in the newly added columns.
-- When writing the paper, treat the curated summaries in `README.md`, `docs/baseline-results.md`, and `docs/research-plan.md` as the authoritative source for those earlier runs.
+- When writing the paper, treat the curated summaries in `README.md` and `docs/baseline-results.md` as the authoritative source for those earlier runs.
 
 ## SegFormer-B2 Outcome
 
@@ -373,6 +365,7 @@ Exploratory diagnosis on `crossdomain_all` (`315` images):
 - `U-Net` raw prediction: `IoU = 0.1389`, `F1 = 0.2333`
 - `SegFormer-B2` raw prediction: `IoU = 0.1781`, `F1 = 0.2829`
 - These raw predictions remain the official cross-domain baselines because their role is to measure the model's own generalization under domain shift, not a model-plus-heuristic bundle.
+- These `crossdomain_all` values are exploratory diagnosis numbers only; they are not the frozen paper-facing hold-out rows reported below on the fixed `test` split.
 
 Postprocessed deployment-oriented variant:
 
@@ -387,8 +380,9 @@ Official hold-out on `test` (`63` images):
 
 - Source-only `SegFormer-B2` raw:
   - `IoU = 0.1442`, `F1 = 0.2476`, `precision = 0.1495`, `recall = 0.7727`
+  - This is the fixed-hold-out raw baseline row. The separate `0.1769` source-only test row comes from a validation-selected threshold sweep and should be treated as a different operating-point report rather than as the raw baseline.
 - ADVENT-style `DeepLabV3+` UDA reviewer baseline:
-  - source labels: `CRACK500/train`
+  - source labels: `Crack500/train`
   - unlabeled target images: `UAV_Crack_Segmentation_Kaggle/train`
   - validation-selected threshold: `0.9` on `UAV val`
   - `UAV test`: `IoU = 0.2022`, `F1 = 0.3076`, `precision = 0.2427`, `recall = 0.4845`

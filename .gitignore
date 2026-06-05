@@ -24,3 +24,10 @@ generated/
 tmp/
 results/hard_negative_audit/
 external/
+
+# Local paper-planning drafts that should stay out of the public repo
+docs/paper-draft-intro-problem-method-v1.md
+docs/paper-outline-detailed-v1.md
+docs/paper-plan-drones-v1.md
+docs/paper-plan-v4.md
+docs/research-plan.md
