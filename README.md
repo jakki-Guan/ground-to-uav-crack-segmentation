@@ -47,6 +47,8 @@ The original datasets are not redistributed. Please download `Crack500`, the Kag
 
 Large generated files are intentionally excluded, including patchwise overlays, prediction masks, training work directories, and run logs.
 
+The repository also includes a metadata-only `SAM799-CVAT` release stub under [sam799_release](sam799_release). It intentionally excludes the raw external-check images and masks until privacy and redistribution review is complete.
+
 ## Public Repository Scope
 
 This repository is structured as a public code-and-results companion rather than a full mirror of every local experiment artifact.
