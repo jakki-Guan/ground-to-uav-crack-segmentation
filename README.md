@@ -39,6 +39,14 @@ python b1_mining_and_filtering.py --help
 python figures_generation/generate_kaggle_progression_figure.py --help
 ```
 
+## Reproducibility Package
+
+This repository contains the code, configuration files, dataset split manifests, `B1` background-bank configuration files, evaluation scripts, figure-generation utilities, and lightweight result summaries used for the JSTARS manuscript.
+
+The original datasets are not redistributed. Please download `Crack500`, the Kaggle UAV crack dataset, and `PaveCrack1300` from their official sources, then use the provided split manifests under `split_manifests/`.
+
+Large generated files are intentionally excluded, including patchwise overlays, prediction masks, training work directories, and run logs.
+
 ## Public Repository Scope
 
 This repository is structured as a public code-and-results companion rather than a full mirror of every local experiment artifact.
@@ -56,6 +64,17 @@ This repository is structured as a public code-and-results companion rather than
   - large mined-bank exports, full audit-card directories, and local scratch artifacts
 
 The expected local dataset roots and preparation steps are documented in [DATASETS.md](DATASETS.md).
+
+## Excluded Files
+
+The following outputs are not included because of file size and/or data redistribution constraints:
+
+- `results/external_sam799_cvat_patchwise/overlays/`
+- `results/external_sam799_cvat_patchwise/predictions/`
+- `results/external_sam799_cvat_patchwise_smoketest/`
+- `results/external_sam799_cvat_patchwise_smoketest_profile/`
+- `results/run_logs/`
+- `work_dirs/`
 
 ## Research Scope
 
