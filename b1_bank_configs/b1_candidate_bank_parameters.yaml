@@ -1,0 +1,59 @@
+defaults:
+  dataset_root: UAV_Crack_Segmentation_Kaggle
+  split: train
+  img_size: 360
+  encoder_name: resnet34
+  encoder_weights: imagenet
+  pretrained_model_name: nvidia/segformer-b2-finetuned-ade-512-512
+
+mining_presets:
+  segformer_b2_tsbank:
+    model_name: segformer-b2
+    checkpoint_path: checkpoints/segformer_b2_plain_360.pth
+    output_root: generated/uav_hard_negatives_segformer_b2_plain_360_train_thr080_mean082
+    component_threshold: 0.8
+    min_component_area: 20
+    min_component_mean_prob: 0.82
+    min_aspect_ratio: 1.0
+    max_fill_ratio: 1.0
+    crop_context_scale: 1.6
+    min_crop_size: 128
+    max_crop_size: 256
+    max_crops_per_image: 3
+    max_crops_total: 300
+
+  deeplabv3plus_tsbank:
+    model_name: DeepLabV3Plus
+    checkpoint_path: checkpoints/deeplabv3plus_plain_360.pth
+    output_root: generated/uav_hard_negatives_deeplabv3plus_plain_360_train_thr080_mean082
+    component_threshold: 0.8
+    min_component_area: 20
+    min_component_mean_prob: 0.82
+    min_aspect_ratio: 1.0
+    max_fill_ratio: 1.0
+    crop_context_scale: 1.6
+    min_crop_size: 128
+    max_crop_size: 256
+    max_crops_per_image: 3
+    max_crops_total: 300
+
+filter_presets:
+  segformer_area1200:
+    bank_root: generated/uav_hard_negatives_segformer_b2_plain_360_train_thr080_mean082
+    output_root: generated/auto_filtered_banks/segformer_b2_tsbank__area1200
+    min_component_area: 1200
+
+  deeplab_area1200:
+    bank_root: generated/uav_hard_negatives_deeplabv3plus_plain_360_train_thr080_mean082
+    output_root: generated/auto_filtered_banks/deeplabv3plus_tsbank__area1200
+    min_component_area: 1200
+
+  segformer_span035:
+    bank_root: generated/uav_hard_negatives_segformer_b2_plain_360_train_thr080_mean082
+    output_root: generated/auto_filtered_banks/segformer_b2_tsbank__span035
+    min_span_ratio: 0.35
+
+  deeplab_span035:
+    bank_root: generated/uav_hard_negatives_deeplabv3plus_plain_360_train_thr080_mean082
+    output_root: generated/auto_filtered_banks/deeplabv3plus_tsbank__span035
+    min_span_ratio: 0.35

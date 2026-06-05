@@ -1,0 +1,20 @@
+name: crack-detection
+channels:
+  - conda-forge
+dependencies:
+  - python=3.10
+  - pip
+  - numpy
+  - pandas
+  - pillow
+  - matplotlib
+  - opencv
+  - jupyterlab
+  - pip:
+      - albumentations
+      - huggingface-hub
+      - pyyaml
+      - segmentation-models-pytorch
+      - torch
+      - torchvision
+      - transformers

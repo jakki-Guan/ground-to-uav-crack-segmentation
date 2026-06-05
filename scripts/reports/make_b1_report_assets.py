@@ -327,7 +327,7 @@ def write_sweep_csv(output_dir: Path, sweep_rows: list[dict]):
             writer.writerow(row)
 
 
-def plot_threshold_sweep(output_dir: Path, sweep_rows: list[dict]):
+def plot_threshold_sweep(output_dir: Path, sweep_rows: list[dict], dpi: int = 220):
     metrics = ["iou", "f1", "precision", "recall"]
     titles = {
         "iou": "IoU",
@@ -358,7 +358,7 @@ def plot_threshold_sweep(output_dir: Path, sweep_rows: list[dict]):
     axes[0].legend(frameon=False)
     fig.suptitle("UAV validation threshold sweep: source-only vs B1", fontsize=14)
     fig.tight_layout()
-    fig.savefig(output_dir / "threshold_sweep_val.png", dpi=220, bbox_inches="tight")
+    fig.savefig(output_dir / "threshold_sweep_val.png", dpi=dpi, bbox_inches="tight")
     plt.close(fig)
 
 

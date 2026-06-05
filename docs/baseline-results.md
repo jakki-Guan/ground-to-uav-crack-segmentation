@@ -17,8 +17,9 @@ Use this index first when citing paper-facing results. Earlier runs below remain
 - `Run 012`: `U-Net` source-only raw on the fixed `UAV test` hold-out (`IoU 0.1284`, `F1 0.2244`). This is the formal classical-reference row; no official `U-Net B1/B2` continuation is frozen.
 - `Run 002`: `SegFormer-B2` source-only raw on the fixed `UAV test` hold-out (`IoU 0.1442`, `F1 0.2476`).
 - `Run 006`: `DeepLabV3+` source-only raw on the fixed `UAV test` hold-out (`IoU 0.1230`, `F1 0.2152`).
-- `Run 010`: promoted official zero-label `SegFormer-B2 B1` row `TS-bank thr080_mean082 @ 0.6` (`IoU 0.3775`, `F1 0.5317`).
-- `Run 011`: promoted official zero-label `DeepLabV3+ B1` row `TS-bank area1200 @ 0.5` (`IoU 0.3860`, `F1 0.5470`).
+- `Run 014`: `DeepLabV3+` ADVENT-style UDA reviewer baseline, validation-selected threshold `0.9` (`IoU 0.2022`, `F1 0.3076`).
+- `Run 010`: promoted official `GT`-filtered `SegFormer-B2 B1` row `TS-bank thr080_mean082 @ 0.6` (`IoU 0.3775`, `F1 0.5317`).
+- `Run 011`: promoted official `GT`-filtered `DeepLabV3+ B1` row `TS-bank area1200 @ 0.5` (`IoU 0.3860`, `F1 0.5470`).
 - `Run 005`: `SegFormer-B2 B2` few-shot curve `fs05 / fs10 / fs20` (`IoU 0.5074 / 0.5420 / 0.5686`).
 - `Run 008`: `DeepLabV3+ B2` few-shot curve `fs05_pat12 / fs10 / fs20` (`IoU 0.3599 / 0.4354 / 0.4760`).
 - `Run 004`: `SegFormer-B2` UAV in-domain upper bound (`IoU 0.5879`, `F1 0.7369`).
@@ -30,6 +31,7 @@ Use this index first when citing paper-facing results. Earlier runs below remain
 - `Run 003`: first-generation `SegFormer-B2 B1` hold-out checkpoint kept for calibration and operating-point history; superseded by `Run 010`.
 - `Run 007`: first-generation `DeepLabV3+ B1` hold-out checkpoint kept for historical comparison; superseded by `Run 011`.
 - `Run 009`: temperature-scaled mining, audit, and mechanism follow-up log; use it to justify candidate selection and claim boundaries, not as a main-table row.
+- `Run 015`: `HRDA/MiT-B5` reviewer UDA baseline under the unified `360 x 360` protocol; completed as a negative but still informative comparison row (`IoU 0.1143`, `F1 0.2052` at threshold `0.3`).
 
 ## Run 001: U-Net on Crack500
 
@@ -201,7 +203,7 @@ Use this index first when citing paper-facing results. Earlier runs below remain
 - The calibrated raw operating point at threshold `0.7` is the best main-report setting for this checkpoint on the fixed hold-out split.
 - The high-threshold raw operating point at `0.9` reaches essentially the same high-precision regime as the postprocessed deployment variant while slightly exceeding it on `IoU` and `F1`.
 - After `B1`, the old deployment switch is therefore best treated as a comparison row rather than as the preferred deployment recipe.
-- Subsequent confirmatory hold-out follow-up on `2026-05-03` then promoted `segformer_b2_b1_tsbank_thr080_mean082_test_thr060` to the official zero-label `SegFormer-B2 B1` row; see `Run 010` for the frozen paper-facing record.
+- Subsequent confirmatory hold-out follow-up on `2026-05-03` then promoted `segformer_b2_b1_tsbank_thr080_mean082_test_thr060` to the official `GT`-filtered `SegFormer-B2 B1` row; see `Run 010` for the frozen paper-facing record.
 - The older `B1 raw @ 0.7` row should therefore be retained as historical calibration context rather than as the final main-report `B1` result.
 
 ## Run 004: SegFormer-B2 In-Domain Upper Bound on UAV
@@ -430,7 +432,7 @@ Use this index first when citing paper-facing results. Earlier runs below remain
 - Unlike the promoted `SegFormer-B2 TS-bank` line, the initial `DeepLabV3+ B1` checkpoint did not need extra threshold retuning; the default `0.5` operating point remained the best raw setting for that original bank.
 - The deployment-oriented switch reaches a very high-precision regime, but it is clearly worse than the raw `B1` row on `IoU` and `F1`.
 - For `DeepLabV3+`, the learned mitigation is therefore the main story, while the postprocessed deployment row should remain comparison-only.
-- Subsequent audit-derived hold-out follow-up on `2026-05-03` then promoted `deeplabv3plus_b1_tsbank_autofilter_area1200_test` to the official zero-label `DeepLabV3+ B1` row; see `Run 011` for the frozen paper-facing record.
+- Subsequent audit-derived hold-out follow-up on `2026-05-03` then promoted `deeplabv3plus_b1_tsbank_autofilter_area1200_test` to the official `GT`-filtered `DeepLabV3+ B1` row; see `Run 011` for the frozen paper-facing record.
 - The old `deeplabv3plus_b1_holdout_raw_thr050` row should therefore be kept as historical comparison rather than as the final main-report `B1` result.
 
 ## Run 008: DeepLabV3+ `B2` Few-Shot Fine-Tuning Status on UAV
@@ -611,7 +613,7 @@ Use this index first when citing paper-facing results. Earlier runs below remain
 - `DeepLabV3+` reacts less cleanly:
   - both the default calibrated bank and the broader `thr080_mean080` retune beat the original `B1` validation IoU
   - the more conservative `thr080_mean082` retune falls below the original `B1`
-- On `2026-04-29`, a first `DeepLabV3+ TS-bank` qualitative audit package was generated at `results/hard_negative_audit/deeplabv3plus_tsbank_round1` using `make_hard_negative_audit_assets.py`.
+- On `2026-04-29`, a first `DeepLabV3+ TS-bank` qualitative audit package was generated at `results/hard_negative_audit/deeplabv3plus_tsbank_round1` using `scripts/banks/make_hard_negative_audit_assets.py`.
 - The audit package contains `223` review cards plus `audit_samples.csv` covering:
   - `generated/uav_hard_negatives_deeplabv3plus_plain_360_train_thr080`
   - `generated/uav_hard_negatives_deeplabv3plus_plain_360_train_thr080_ts`
@@ -634,8 +636,8 @@ Use this index first when citing paper-facing results. Earlier runs below remain
   - original source-bank baseline `uav_hard_negatives_deeplabv3plus_plain_360_train_thr080`: `28 / 60 = 46.7%`
   - retuned broad candidate `thr080_mean080`: `23 / 60 = 38.3%`
   - retuned conservative candidate `thr080_mean082`: `19 / 60 = 31.7%`
-- `export_curated_hard_negative_bank.py` now converts the reviewed `audit_samples.csv` rows into trainable curated bank roots.
-- `export_auto_filtered_hard_negative_bank.py` now exports simple rule-filtered variants of the same mined bank for low-cost audit-derived follow-up.
+- `scripts/banks/export_curated_hard_negative_bank.py` now converts the reviewed `audit_samples.csv` rows into trainable curated bank roots.
+- `scripts/banks/export_auto_filtered_hard_negative_bank.py` now exports simple rule-filtered variants of the same mined bank for low-cost audit-derived follow-up.
 - Curated-bank validation follow-up after the audit:
   - `deeplabv3plus_b1_tsbank_curated_hfpa_uavval`
     - curated bank: calibrated `TS-bank` filtered to `hard_fp + ambiguous`
@@ -737,13 +739,13 @@ Use this index first when citing paper-facing results. Earlier runs below remain
   - on `SegFormer-B2`, `ambiguous` crops clearly dilute the `thr080_mean082` bank (`0.3304 -> 0.3535`), while the `thr080_mean080` curated exports are nearly tied and do not isolate the same effect
   - the updated mechanism conclusion is therefore model-dependent rather than universal: generic target-background exposure explains a substantial share of the gain, and mined-bank-specific value is not yet established on the main `SegFormer-B2` backbone
 - Updated promotion rule:
-  - `SegFormer-B2`: freeze `segformer_b2_b1_tsbank_thr080_mean082_test_thr060` as the official zero-label `B1` row; keep `B1 raw @ 0.9` as the high-precision comparison point and keep the older raw/postprocess rows as historical calibration context
-  - `DeepLabV3+`: freeze `deeplabv3plus_b1_tsbank_autofilter_area1200_test` as the official zero-label `B1` row; keep the curated-bank variants and `span_ratio` rule as diagnostic follow-ups rather than as the promoted row
+  - `SegFormer-B2`: freeze `segformer_b2_b1_tsbank_thr080_mean082_test_thr060` as the official `GT`-filtered `B1` row; keep `B1 raw @ 0.9` as the high-precision comparison point and keep the older raw/postprocess rows as historical calibration context
+  - `DeepLabV3+`: freeze `deeplabv3plus_b1_tsbank_autofilter_area1200_test` as the official `GT`-filtered `B1` row; keep the curated-bank variants and `span_ratio` rule as diagnostic follow-ups rather than as the promoted row
 
 ## Run 010: SegFormer-B2 Promoted `TS-bank` `B1` Official Cross-Domain Hold-Out on UAV
 
 **Date recorded:** 2026-05-03  
-**Purpose:** Freeze the official zero-label `SegFormer-B2 B1` row after validation-first bank selection and confirmatory fixed-hold-out testing
+**Purpose:** Freeze the official `GT`-filtered `SegFormer-B2 B1` row after validation-first bank selection and confirmatory fixed-hold-out testing
 
 ### Model
 
@@ -785,7 +787,7 @@ Use this index first when citing paper-facing results. Earlier runs below remain
 
 ### Notes
 
-- This is the official zero-label `SegFormer-B2 B1` row for paper-facing comparison tables.
+- This is the official `GT`-filtered `SegFormer-B2 B1` row for paper-facing comparison tables.
 - The promoted row is still a raw prediction line; it is threshold-selected on `UAV val`, not postprocessed on the hold-out split.
 - `Run 003` remains important as the first-generation `B1` checkpoint and operating-point history, but it is no longer the final `B1` citation target.
 - Audit-derived curated reruns and random-background controls remain supporting mechanism evidence in `Run 009`, not replacements for this frozen row.
@@ -793,7 +795,7 @@ Use this index first when citing paper-facing results. Earlier runs below remain
 ## Run 011: DeepLabV3+ Promoted `TS-bank area1200` `B1` Official Cross-Domain Hold-Out on UAV
 
 **Date recorded:** 2026-05-03  
-**Purpose:** Freeze the official zero-label `DeepLabV3+ B1` row after audit-derived bank selection and confirmatory fixed-hold-out testing
+**Purpose:** Freeze the official `GT`-filtered `DeepLabV3+ B1` row after audit-derived bank selection and confirmatory fixed-hold-out testing
 
 ### Model
 
@@ -837,7 +839,7 @@ Use this index first when citing paper-facing results. Earlier runs below remain
 
 ### Notes
 
-- This is the official zero-label `DeepLabV3+ B1` row for paper-facing comparison tables.
+- This is the official `GT`-filtered `DeepLabV3+ B1` row for paper-facing comparison tables.
 - The promoted bank is the audit-derived `component_area >= 1200` auto-filter export rather than the earlier raw mined bank or the curated-only exports.
 - `Run 007` remains the first-generation `DeepLabV3+ B1` reference, but it is now historical comparison rather than the final `B1` citation target.
 - The curated-bank variants and the `span_ratio` rule stay diagnostic and claim-bounding; they do not replace this frozen row.
@@ -938,3 +940,225 @@ Use this index first when citing paper-facing results. Earlier runs below remain
   - same maximum epochs (`40`)
 - The result now closes an important comparison gap for the paper because `DeepLabV3+` already has frozen `source-only`, `B1`, and `B2` rows.
 - Relative to the frozen `DeepLabV3+` `B2 fs20` row (`IoU 0.4760`), the in-domain ceiling is higher but not dramatically so (`0.5085`), which suggests that limited target supervision already recovers a large fraction of the remaining gap for this backbone as well.
+
+## Run 014: DeepLabV3+ ADVENT-Style UDA Cross-Domain Baseline on UAV
+
+**Date recorded:** 2026-05-24  
+**Purpose:** Add a reviewer-facing unsupervised domain adaptation comparison for `Crack500 -> UAV_Crack_Segmentation_Kaggle`, covering the ADVENT family of output-space adversarial adaptation methods
+
+### Model And Local Implementation
+
+- Segmentation backbone: `DeepLabV3+`
+- Encoder: `resnet34`
+- Encoder weights: `imagenet`
+- Input channels: `3`
+- Output classes: `1`
+- Local training entry point: `train_advent.py`
+- Reusable experiment command: `scripts/experiments/run_advent_deeplabv3plus.sh`
+- Threshold-selection/reporting entry point: `scripts/reports/run_threshold_sweep_report.py`
+- ADVENT component: binary entropy-map discriminator trained on source-vs-target output entropy maps
+- Deployment rule: only the segmentation checkpoint is used for validation/test inference; the discriminator is a training-only component and is not loaded at deployment time
+
+This is an ADVENT-style adaptation implemented inside the repository's binary crack-segmentation protocol. It should be described as `ADVENT-style output-space adversarial adaptation` or `ADVENT adapted to our binary crack-segmentation setting`, not as a byte-for-byte reproduction of the official ADVENT DeepLabV2 implementation.
+
+### Training Setup
+
+- Source supervised dataset: `CRACK500/train`
+- Target adaptation dataset: `UAV_Crack_Segmentation_Kaggle/train`
+- Target-label rule: target masks are ignored during ADVENT training; target images contribute only through entropy/adversarial losses
+- Validation dataset for checkpoint selection: `UAV_Crack_Segmentation_Kaggle/val`
+- Final test dataset: `UAV_Crack_Segmentation_Kaggle/test`
+- Initialization checkpoint: `checkpoints/deeplabv3plus_plain_360.pth`
+- Output segmentation checkpoint: `checkpoints/advent_deeplabv3plus_crack500_to_uav.pth`
+- Output discriminator checkpoint: `checkpoints/advent_deeplabv3plus_crack500_to_uav_discriminator.pth`
+- Image size: `360`
+- Training batch size: `4`
+- Validation/test reporting batch size: `8`
+- Learning rate: `1e-4`
+- Discriminator learning rate: `1e-4`
+- Target adversarial loss weight: `1e-3`
+- Max epochs: `30`
+- Early stopping patience: `8`
+- Seed: `42`
+- Loss for supervised source segmentation: `BCE + Dice`
+
+### Checkpoint Selection
+
+- Best checkpoint selected during ADVENT training: `epoch 17`
+- Training-time validation metric at threshold `0.5`:
+  - Validation IoU: `0.1974`
+  - Validation F1: `0.2986`
+  - Validation precision: `0.2255`
+  - Validation recall: `0.6179`
+
+### Threshold Selection Protocol
+
+- Threshold selection was performed after checkpoint selection using `UAV val` only.
+- Candidate thresholds: `0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9`
+- Selection metric: validation `IoU`
+- Selected threshold: `0.9`
+- Report assets:
+  - `results/report_assets/advent_deeplabv3plus_threshold_sweep/threshold_sweep_val.csv`
+  - `results/report_assets/advent_deeplabv3plus_threshold_sweep/selected_threshold_test.csv`
+  - `results/report_assets/advent_deeplabv3plus_threshold_sweep/summary.md`
+
+Validation sweep for the selected checkpoint:
+
+| Threshold | Val IoU | Val F1 | Val Precision | Val Recall |
+| --- | ---: | ---: | ---: | ---: |
+| `0.1` | `0.1458` | `0.2447` | `0.1511` | `0.7590` |
+| `0.2` | `0.1593` | `0.2631` | `0.1665` | `0.7357` |
+| `0.3` | `0.1677` | `0.2739` | `0.1767` | `0.7119` |
+| `0.4` | `0.1744` | `0.2822` | `0.1854` | `0.6894` |
+| `0.5` | `0.1804` | `0.2893` | `0.1938` | `0.6657` |
+| `0.6` | `0.1858` | `0.2956` | `0.2021` | `0.6395` |
+| `0.7` | `0.1908` | `0.3014` | `0.2112` | `0.6094` |
+| `0.8` | `0.1962` | `0.3075` | `0.2232` | `0.5685` |
+| `0.9` | `0.2036` | `0.3157` | `0.2455` | `0.5003` |
+
+### Final Test Result
+
+- Confirmatory raw test result at validation-selected threshold `0.9`
+  - Test loss: `0.8968`
+  - Test IoU: `0.2022`
+  - Test F1: `0.3076`
+  - Test precision: `0.2427`
+  - Test recall: `0.4845`
+
+For same-protocol context, `DeepLabV3+` source-only threshold selection on `UAV val` selected threshold `0.8` and reached:
+
+- Source-only test at validation-selected threshold `0.8`
+  - Test IoU: `0.1282`
+  - Test F1: `0.2202`
+  - Test precision: `0.1434`
+  - Test recall: `0.5689`
+
+### Interpretation
+
+- ADVENT-style output-space adaptation improves over the same-backbone source-only baseline under a validation-selected threshold protocol (`IoU 0.1282 -> 0.2022`, `F1 0.2202 -> 0.3076`).
+- The gain is driven primarily by better false-positive control (`precision 0.1434 -> 0.2427`) rather than better recall (`0.5689 -> 0.4845`).
+- The selected threshold of `0.9` is itself diagnostic: the adapted model still needs a highly conservative operating point on UAV imagery, indicating that implicit output-space alignment does not fully remove target-domain false-positive pressure.
+- Compared with the promoted `DeepLabV3+ B1` row (`IoU 0.3860`, `F1 0.5470` at threshold `0.5`), ADVENT-style adaptation helps but remains much weaker.
+- This supports the paper's claim boundary: generic adversarial alignment can improve cross-domain calibration, but explicit target-background / hard-negative exposure is more effective for the structured false positives that dominate ground-to-UAV crack segmentation transfer.
+
+## Run 015: HRDA/MiT-B5 Reviewer UDA Cross-Domain Baseline on UAV
+
+**Date recorded:** 2026-05-27  
+**Purpose:** Add a reviewer-facing `HRDA` baseline for `Crack500 -> UAV_Crack_Segmentation_Kaggle` under the same unified `360 x 360` protocol used for the DAFormer comparison
+
+### Model And Local Implementation
+
+- Segmentation model: `HRDAEncoderDecoder`
+- Single-scale decoder family: `DAFormerHead`
+- Decoder variant: `daformer_sepaspp_mitb5`
+- Encoder: `MiT-B5`
+- Input channels: `3`
+- Output classes: `2` (`background`, `crack`)
+- External code root: `external/HRDA`
+- External snapshot checked locally: `c370b5b`
+- Project-owned config: `configs/hrda/crack500_to_uav_hrda_mitb5_s0.py`
+- Reusable runner: `scripts/experiments/run_hrda_crack500_to_uav.sh`
+- Threshold-selection/reporting entry point: `scripts/daformer/evaluate_daformer_threshold_sweep.py`
+
+This is HRDA adapted to the repository's local binary crack-segmentation protocol, not a claim of byte-for-byte reproduction of the original urban-scene benchmark stack.
+
+### Training Setup
+
+- Source supervised dataset: `Crack500/train`
+- Target adaptation dataset: `UAV/train`
+- Validation dataset for threshold selection: `UAV/val`
+- Final test dataset: `UAV/test`
+- MMSeg-format dataset root: `generated/hrda/crack500_to_uav`
+- Dataset sizes:
+  - source train: `1896`
+  - target train: `189`
+  - target val: `63`
+  - target test: `63`
+- Target-label rule: target masks are ignored during HRDA training and used only for validation/test reporting
+- Backbone initialization: `external/HRDA/pretrained/mit_b5.pth`
+- Outer image size: `360`
+- HR detail crop size: `176`
+- Feature scale: `0.5`
+- Dual-scale settings:
+  - `scales = [1, 0.5]`
+  - `crop_coord_divisible = 8`
+  - `attention_classwise = True`
+  - `hr_loss_weight = 0.1`
+  - `hr_slide_inference = True`
+- Training batch size: `1`
+- Validation/test reporting workers: `1`
+- Seed: `42`
+
+### Optimization And UDA Parameters
+
+- UDA family: `DACS`
+- Mixing mode: `class`
+- EMA alpha: `0.999`
+- Pseudo-label threshold: `0.968`
+- ImageNet feature distance:
+  - `lambda = 0.005`
+  - classes `[1]`
+  - `scale_min_ratio = 0.75`
+- Rare-class sampling:
+  - `min_pixels = 100`
+  - `class_temp = 0.01`
+  - `min_crop_ratio = 0.5`
+- Additional UDA switches:
+  - `blur = True`
+  - `color_jitter_strength = 0.2`
+  - `color_jitter_probability = 0.2`
+- Optimizer: `AdamW`
+- Learning rate: `6e-5`
+- Weight decay: `0.01`
+- Paramwise multipliers:
+  - `head.lr_mult = 10.0`
+  - `pos_block.decay_mult = 0.0`
+  - `norm.decay_mult = 0.0`
+- Schedule: `poly10warm`
+- Warmup iters: `1500`
+- Max iterations: `40000`
+- Checkpoint interval: `4000`
+- Validation interval: `4000`
+
+### Threshold Selection Protocol
+
+- Threshold selection was performed after training using `UAV val` only.
+- Candidate thresholds: `0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9`
+- Selection metric: validation `IoU`
+- Selected threshold: `0.3`
+- Report assets:
+  - `results/report_assets/hrda_mitb5_threshold_sweep_360/threshold_sweep_val.csv`
+  - `results/report_assets/hrda_mitb5_threshold_sweep_360/selected_threshold_test.csv`
+  - `results/report_assets/hrda_mitb5_threshold_sweep_360/summary.md`
+
+Validation sweep for the selected checkpoint:
+
+| Threshold | Val IoU | Val F1 | Val Precision | Val Recall |
+| --- | ---: | ---: | ---: | ---: |
+| `0.1` | `0.0782` | `0.1450` | `0.0794` | `0.8384` |
+| `0.2` | `0.0824` | `0.1522` | `0.0841` | `0.7956` |
+| `0.3` | `0.0840` | `0.1550` | `0.0863` | `0.7576` |
+| `0.4` | `0.0839` | `0.1548` | `0.0867` | `0.7189` |
+| `0.5` | `0.0832` | `0.1537` | `0.0866` | `0.6788` |
+| `0.6` | `0.0822` | `0.1519` | `0.0863` | `0.6342` |
+| `0.7` | `0.0799` | `0.1480` | `0.0848` | `0.5779` |
+| `0.8` | `0.0757` | `0.1407` | `0.0818` | `0.5036` |
+| `0.9` | `0.0685` | `0.1283` | `0.0766` | `0.3930` |
+
+### Final Test Result
+
+- Confirmatory raw test result at validation-selected threshold `0.3`
+  - Test IoU: `0.1143`
+  - Test F1: `0.2052`
+  - Test precision: `0.1191`
+  - Test recall: `0.7390`
+
+For same-protocol context, the completed `DAFormer/MiT-B5` reviewer baseline selected threshold `0.6` and reached:
+
+- `UAV test`: `IoU 0.1353`, `F1 0.2384`, `precision 0.1388`, `recall 0.8442`
+
+### Interpretation
+
+- Under the repository's unified `360 x 360` crack protocol, HRDA did not beat the simpler DAFormer reviewer baseline.
+- The selected threshold `0.3` and final `precision 0.1191` indicate that the best validation operating point remains recall-heavy rather than precision-stable.
+- This is therefore a completed negative reviewer baseline, but still useful evidence: dual-scale high-resolution fusion alone did not solve the structured UAV false-positive problem in this local setting.

@@ -5,6 +5,8 @@ This repository is intended to be released as a public code-and-results companio
 ## Included In The Public Repository
 
 - training, evaluation, split-generation, and figure-generation code
+- environment files and public wrapper entrypoints
+- tracked split manifests under [split_manifests](split_manifests)
 - experiment logs such as [results/experiments.csv](results/experiments.csv)
 - paper-facing summary assets under [results/report_assets](results/report_assets)
 - documentation and writing notes under [docs](docs)
@@ -28,8 +30,8 @@ These items are omitted to avoid redistributing third-party data, reduce reposit
 | Dataset | Paper role | Expected local root | Redistribution in this repo |
 | --- | --- | --- | --- |
 | `Crack500` | source-domain training dataset | `CRACK500/` | not mirrored |
-| `UAV_Crack_Segmentation_Kaggle` | primary UAV target benchmark | `UAV_Crack_Segmentation_Kaggle/` | not mirrored |
-| `PaveCrack1300` | auxiliary UAV benchmark-sensitivity target | `PaveCrack1300/` | not mirrored |
+| `UAV_Crack_Segmentation_Kaggle` | primary UAV target benchmark | `UAV_Crack_Segmentation_Kaggle/` | raw data not mirrored; fixed split manifests are mirrored |
+| `PaveCrack1300` | auxiliary UAV benchmark-sensitivity target | `PaveCrack1300/` | raw data not mirrored; fixed split manifests are mirrored |
 
 ## Expected Local Layout
 
@@ -54,25 +56,27 @@ Download `Crack500` from its original provider and place it under `CRACK500/` in
 Download the Kaggle UAV crack dataset locally and place it under `UAV_Crack_Segmentation_Kaggle/`. If you are starting from a single all-sample split file and want to regenerate the repository's reproducible `train / val / test` split while preserving the exploratory full list, run:
 
 ```bash
-python split_uav_kaggle.py \
+python scripts/data/split_uav_kaggle.py \
   --dataset-root UAV_Crack_Segmentation_Kaggle \
   --source-split test \
   --overwrite
 ```
 
 This creates `train.txt`, `val.txt`, `test.txt`, `crossdomain_all.txt`, and `split_manifest.json` under the dataset root.
+The frozen public copies of those files are mirrored under [split_manifests](split_manifests).
 
 ### PaveCrack1300
 
 Download the public `PaveCrack1300` release locally, extract it to `PaveCrack1300_raw/`, and convert it into the repository-native split-file layout with:
 
 ```bash
-python prepare_pavecrack1300.py \
+python scripts/data/prepare_pavecrack1300.py \
   --raw-root PaveCrack1300_raw \
   --dataset-root PaveCrack1300
 ```
 
 This creates a prepared dataset root containing `images/`, `masks/`, `train.txt`, `val.txt`, `test.txt`, `crossdomain_all.txt`, and `split_manifest.json`.
+The frozen public copies of those files are mirrored under [split_manifests](split_manifests).
 
 ## Reproducibility Scope
 

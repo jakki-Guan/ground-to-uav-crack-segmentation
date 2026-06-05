@@ -1,0 +1,109 @@
+{
+  "dataset": "SAM799-CVAT",
+  "dataset_role": "fixed external test only",
+  "split_name": "external_test",
+  "evaluation_scope": "full_external_test",
+  "num_images": 53,
+  "num_positive": 47,
+  "num_empty_negative": 6,
+  "image_resolution": "4032x3024",
+  "image_resolutions": [
+    "4032x3024"
+  ],
+  "used_for_training": false,
+  "used_for_validation": false,
+  "used_for_threshold_selection": false,
+  "patch_size": 512,
+  "stride": 384,
+  "model_input_size": 360,
+  "patch_batch_size": 8,
+  "stitching": "probability_average",
+  "threshold_policy": "predefined from primary Kaggle validation protocol",
+  "profiling": {
+    "enabled": true,
+    "time_unit": "seconds",
+    "memory_unit": "MiB",
+    "runtime_scope": "Per-image runtime covers image load, patchwise inference/stitching, and threshold/postprocess/metrics; it excludes optional prediction or overlay file writes.",
+    "predict_scope": "Predict time covers patch preprocessing, batched forward passes, resize-back, and probability averaging.",
+    "gpu_peak_scope": "Peak GPU memory is reset after model load and tracked per image."
+  },
+  "thresholds": {
+    "source_only": 0.5,
+    "b1_selected": 0.6,
+    "b2_fs05": 0.5,
+    "b2_fs10": 0.5,
+    "b2_fs20": 0.5
+  },
+  "stages": [
+    {
+      "key": "source_only",
+      "label": "Source-only",
+      "checkpoint_path": "/home/jakeguan/dev/crack-detection/checkpoints/segformer_b2_plain_360.pth",
+      "threshold": 0.5,
+      "model_name": "segformer-b2",
+      "encoder_name": "resnet34",
+      "encoder_weights": "imagenet",
+      "pretrained_model_name": "nvidia/segformer-b2-finetuned-ade-512-512",
+      "postprocess_min_area": 0,
+      "postprocess_max_fill_ratio": 1.0,
+      "postprocess_min_aspect_ratio": 1.0,
+      "postprocess_max_components": 0
+    },
+    {
+      "key": "b1_selected",
+      "label": "B1 selected",
+      "checkpoint_path": "/home/jakeguan/dev/crack-detection/checkpoints/segformer_b2_b1_tsbank_thr080_mean082.pth",
+      "threshold": 0.6,
+      "model_name": "segformer-b2",
+      "encoder_name": "resnet34",
+      "encoder_weights": "imagenet",
+      "pretrained_model_name": "nvidia/segformer-b2-finetuned-ade-512-512",
+      "postprocess_min_area": 0,
+      "postprocess_max_fill_ratio": 1.0,
+      "postprocess_min_aspect_ratio": 1.0,
+      "postprocess_max_components": 0
+    },
+    {
+      "key": "b2_fs05",
+      "label": "B2 fs05",
+      "checkpoint_path": "/home/jakeguan/dev/crack-detection/checkpoints/segformer_b2_b2_fs05_seed42.pth",
+      "threshold": 0.5,
+      "model_name": "segformer-b2",
+      "encoder_name": "resnet34",
+      "encoder_weights": "imagenet",
+      "pretrained_model_name": "nvidia/segformer-b2-finetuned-ade-512-512",
+      "postprocess_min_area": 0,
+      "postprocess_max_fill_ratio": 1.0,
+      "postprocess_min_aspect_ratio": 1.0,
+      "postprocess_max_components": 0
+    },
+    {
+      "key": "b2_fs10",
+      "label": "B2 fs10",
+      "checkpoint_path": "/home/jakeguan/dev/crack-detection/checkpoints/segformer_b2_b2_fs10_seed42.pth",
+      "threshold": 0.5,
+      "model_name": "segformer-b2",
+      "encoder_name": "resnet34",
+      "encoder_weights": "imagenet",
+      "pretrained_model_name": "nvidia/segformer-b2-finetuned-ade-512-512",
+      "postprocess_min_area": 0,
+      "postprocess_max_fill_ratio": 1.0,
+      "postprocess_min_aspect_ratio": 1.0,
+      "postprocess_max_components": 0
+    },
+    {
+      "key": "b2_fs20",
+      "label": "B2 fs20",
+      "checkpoint_path": "/home/jakeguan/dev/crack-detection/checkpoints/segformer_b2_b2_fs20_seed42.pth",
+      "threshold": 0.5,
+      "model_name": "segformer-b2",
+      "encoder_name": "resnet34",
+      "encoder_weights": "imagenet",
+      "pretrained_model_name": "nvidia/segformer-b2-finetuned-ade-512-512",
+      "postprocess_min_area": 0,
+      "postprocess_max_fill_ratio": 1.0,
+      "postprocess_min_aspect_ratio": 1.0,
+      "postprocess_max_components": 0
+    }
+  ]
+}

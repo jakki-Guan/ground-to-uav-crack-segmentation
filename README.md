@@ -16,7 +16,28 @@ See the `AIC`-oriented writing outline in [docs/paper-outline-detailed-v1.md](do
 See the first `AIC` draft in [docs/paper-draft-intro-problem-method-v1.md](docs/paper-draft-intro-problem-method-v1.md).
 See the `Drones`-oriented fallback plan in [docs/paper-plan-drones-v1.md](docs/paper-plan-drones-v1.md).
 See the current baseline record in [docs/baseline-results.md](docs/baseline-results.md).
+See the DAFormer reviewer-baseline setup record in [docs/daformer-baseline.md](docs/daformer-baseline.md).
+See the HRDA reviewer-baseline setup record in [docs/hrda-baseline.md](docs/hrda-baseline.md).
 See [DATASETS.md](DATASETS.md) for dataset setup, redistribution boundaries, and public-release notes.
+
+## Public Reproducibility Quick Start
+
+The public-facing repo entrypoints are intentionally shallow:
+
+- environment setup: [environment.yml](environment.yml) and [environment-daformer.yml](environment-daformer.yml)
+- fixed dataset splits: [split_manifests](split_manifests)
+- `B1` bank presets and wrapper: [b1_bank_configs](b1_bank_configs)
+- public evaluation entrypoints: [evaluation](evaluation), [evaluate_fixed_test.py](evaluate_fixed_test.py), [threshold_selection.py](threshold_selection.py)
+- public figure-generation entrypoints: [figures_generation](figures_generation)
+
+Typical commands:
+
+```bash
+python threshold_selection.py --help
+python evaluate_fixed_test.py --help
+python b1_mining_and_filtering.py --help
+python figures_generation/generate_kaggle_progression_figure.py --help
+```
 
 ## Public Repository Scope
 
@@ -24,6 +45,9 @@ This repository is structured as a public code-and-results companion rather than
 
 - Included here:
   - code for training, evaluation, split generation, and figure generation
+  - public split manifests for the fixed Kaggle and PaveCrack1300 protocols
+  - public wrapper entrypoints for `B1`, evaluation, and figure generation
+  - reproducible environment files for the main stack and the DAFormer/HRDA compatibility stack
   - experiment logs and paper-facing summary assets
   - documentation and writing notes
 - Not mirrored here:
@@ -54,23 +78,32 @@ Reporting principle:
 
 ## Current Repository Status
 
-As of `2026-05-04`, the workspace already includes:
+As of `2026-05-24`, the workspace already includes:
 - `dataset.py`: `CrackDataset` plus Albumentations-based transforms
 - `model.py`: segmentation model factory for `Unet`, `FPN`, `Linknet`, `PSPNet`, `DeepLabV3+`, and `SegFormer-B2`
 - `loss.py`: configurable `BCE + Dice`, `Tversky`, and `Focal Tversky` losses
 - `metrics.py`: `IoU` and `F1` metrics
 - `postprocess.py`: optional connected-component filtering for deployment-oriented evaluation
-- `check_dataset.py`: dataset sanity-check and visualization utilities
+- `scripts/data/check_dataset.py`: dataset sanity-check and visualization utilities
 - `train.py`: configurable baseline training with validation checkpointing and early stopping
 - `test.py`: configurable checkpoint evaluation for the saved model
 - `experiment_logger.py`: experiment logging helpers for reproducible CSV records, including split/config/threshold/postprocess metadata plus `IoU`, `F1`, `precision`, and `recall`
-- `make_b1_report_assets.py`: report-asset generator for the calibrated `B1` comparison
-- `make_uav_fewshot_splits.py`: reproducible `5% / 10% / 20%` few-shot split generator for `B2`
-- `split_uav_kaggle.py`: reproducible splitter for the primary `UAV_Crack_Segmentation_Kaggle` benchmark
-- `prepare_pavecrack1300.py`: import the public `PaveCrack1300` release into the repository's standard split-file dataset format
-- `mine_uav_hard_negatives.py`: mine target-background banks for `B1`-style follow-up experiments
-- `export_curated_hard_negative_bank.py`: export audited hard-negative crops into trainable curated bank roots
-- `paper_figures.py`: paper-facing figure helper module for dataset overview, mechanism, and `B2` supervision-scaling assets
+- `scripts/reports/make_b1_report_assets.py`: report-asset generator for the calibrated `B1` comparison
+- `scripts/reports/make_retention_report_assets.py`: report-asset generator for source-domain retention back-tests, `Kaggle test` bootstrap confidence intervals, and optional skeleton metrics
+- `scripts/data/make_uav_fewshot_splits.py`: reproducible `5% / 10% / 20%` few-shot split generator for `B2`
+- `scripts/data/split_uav_kaggle.py`: reproducible splitter for the primary `UAV_Crack_Segmentation_Kaggle` benchmark
+- `scripts/data/prepare_pavecrack1300.py`: import the public `PaveCrack1300` release into the repository's standard split-file dataset format
+- `scripts/banks/mine_uav_hard_negatives.py`: mine target-background banks for `B1`-style follow-up experiments
+- `scripts/banks/export_curated_hard_negative_bank.py`: export audited hard-negative crops into trainable curated bank roots
+- `scripts/reports/paper_figures.py`: paper-facing figure helper module for dataset overview, mechanism, and `B2` supervision-scaling assets
+- `scripts/daformer/`: DAFormer reviewer-baseline adapters for MMSeg-format data preparation, MiT-B5 weight conversion, and validation-threshold test reporting
+- `configs/daformer/crack500_to_uav_daformer_mitb5_s0.py`: project-specific DAFormer/MiT-B5 UDA config for `Crack500 -> UAV_Crack_Segmentation_Kaggle`
+- `environment.yml`: public environment for the main training/evaluation/figure-generation stack
+- `environment-daformer.yml`: compatibility environment for the DAFormer and HRDA reviewer baselines
+- `split_manifests/`: tracked copies of the fixed Kaggle and PaveCrack1300 split files plus their split manifests
+- `b1_bank_configs/`: YAML presets and a public wrapper for `B1` hard-negative mining and filtering
+- `evaluation/`: public wrappers for threshold selection and fixed-test evaluation
+- `figures_generation/`: public wrappers for paper-facing figure export
 - `results/experiments.csv`: centralized experiment log
 - `notebooks/03_test_visualization.ipynb`: qualitative review notebook for fixed test samples and failure cases
 - `notebooks/06_round1_experiments.ipynb`: compact comparison dashboard for logged round-1 runs
@@ -259,7 +292,7 @@ DeepLab target-aware mitigation status:
     - `thr = 0.45`: `IoU = 0.3114`, `F1 = 0.4589`
     - `thr = 0.50`: `IoU = 0.3099`, `F1 = 0.4567`
   - Audit-derived auto-filter follow-up on the same calibrated `TS-bank`
-    - `export_auto_filtered_hard_negative_bank.py` now exports manifest-filtered bank variants directly from the mined calibrated bank
+    - `scripts/banks/export_auto_filtered_hard_negative_bank.py` now exports manifest-filtered bank variants directly from the mined calibrated bank
     - `deeplabv3plus_b1_tsbank_autofilter_span035_uavval`: `span_ratio >= 0.35`, best explicit rerun `epoch 13`, `IoU = 0.2783`, `F1 = 0.4086`, `precision = 0.6296`, `recall = 0.3660`
     - `deeplabv3plus_b1_tsbank_autofilter_area1200_uavval`: `component_area >= 1200`, `epoch 25`, `IoU = 0.3564`, `F1 = 0.5136`, `precision = 0.5420`, `recall = 0.5329`
     - audited composition of the exported auto-filtered banks:
@@ -277,7 +310,7 @@ Current `B1` interpretation:
 - The `span_ratio >= 0.35` auto-filter is too aggressive: it removes most audited `noise`, but it also trims useful nuisance structure and underperforms both the raw calibrated bank and the curated `hard_fp` export.
 - By contrast, `component_area >= 1200` removes small junk while preserving all `16 / 16` audited `hard_fp`; that rule wins on validation (`IoU 0.3564`) and then confirms on the fixed hold-out split at `IoU 0.3860`, `F1 0.5470`.
 - The revised reading is not “cleaner is always better,” but “keep the large target-domain nuisance structures while discarding tiny components.” Pure `hard_fp` curation was too restrictive, while the successful area rule preserved nuisance diversity without letting the smallest noise dominate.
-- `deeplabv3plus_b1_tsbank_autofilter_area1200_test` is now the official zero-label `DeepLabV3+ B1` result, while the old raw `deeplabv3plus_b1_holdout_raw_thr050` row should be kept as historical comparison.
+- `deeplabv3plus_b1_tsbank_autofilter_area1200_test` is now the official `GT`-filtered `DeepLabV3+ B1` result, while the old raw `deeplabv3plus_b1_holdout_raw_thr050` row should be kept as historical comparison.
 
 DeepLab few-shot `B2` status:
 
@@ -333,6 +366,18 @@ Official hold-out on `test` (`63` images):
 
 - Source-only `SegFormer-B2` raw:
   - `IoU = 0.1442`, `F1 = 0.2476`, `precision = 0.1495`, `recall = 0.7727`
+- ADVENT-style `DeepLabV3+` UDA reviewer baseline:
+  - source labels: `CRACK500/train`
+  - unlabeled target images: `UAV_Crack_Segmentation_Kaggle/train`
+  - validation-selected threshold: `0.9` on `UAV val`
+  - `UAV test`: `IoU = 0.2022`, `F1 = 0.3076`, `precision = 0.2427`, `recall = 0.4845`
+  - local implementation: `train_advent.py` plus `scripts/reports/run_threshold_sweep_report.py`
+- HRDA-style `MiT-B5` UDA reviewer baseline:
+  - source labels: `Crack500/train`
+  - unlabeled target images: `UAV/train`
+  - validation-selected threshold: `0.3` on `UAV val`
+  - `UAV test`: `IoU = 0.1143`, `F1 = 0.2052`, `precision = 0.1191`, `recall = 0.7390`
+  - local implementation: `external/HRDA` plus `scripts/experiments/run_hrda_crack500_to_uav.sh`
 - Source-only `SegFormer-B2` deployment variant:
   - `IoU = 0.1784`, `F1 = 0.2900`, `precision = 0.2099`, `recall = 0.5081`
 - `B1` hard-negative-mixed `SegFormer-B2` raw at the default threshold `0.5`:
@@ -364,9 +409,10 @@ Current interpretation:
 - The default baseline should continue to use raw predictions.
 - The postprocessed result should be reported separately as a deployment-oriented variant.
 - Its gain is real for UAV cluttered scenes, but it comes from a clear `precision-recall` tradeoff rather than a universal model improvement.
+- The ADVENT-style `DeepLabV3+` baseline improves over same-backbone source-only transfer, but its selected threshold of `0.9` shows that generic output-space alignment still needs a highly conservative operating point on UAV imagery.
 - The first training-side mitigation result is now in place:
   - even the original `B1 raw` row was already well above the source-only deployment-oriented variant.
-- The promoted `TS-bank` confirmatory hold-out update is now the strongest zero-label `SegFormer-B2 B1` result:
+- The promoted `TS-bank` confirmatory hold-out update is now the strongest `GT`-filtered `SegFormer-B2 B1` result:
   - `segformer_b2_b1_tsbank_thr080_mean082_test_thr060` reaches `IoU 0.3775`, `F1 0.5317`, `precision 0.5257`, `recall 0.5779`.
   - This exceeds both the old `B1 raw @ 0.7` main-report row (`IoU 0.3325`) and the default-threshold TS-bank hold-out row (`IoU 0.3728`).
 - The first single random-background control (`seed42`) looked much weaker than the mined bank (`IoU 0.2747 < 0.3693`), but a later paired `5-seed` rerun changed the picture:
@@ -383,7 +429,7 @@ Current interpretation:
 - On `thr080_mean082`, removing `ambiguous` crops helps materially (`0.3304 -> 0.3535`), while on `thr080_mean080` the `hard_fp + ambiguous` and `hard_fp` exports are nearly tied. The current audit reading for `SegFormer-B2` is therefore explanatory rather than performance-changing.
 - The old deployment switch is no longer an `IoU/F1` improvement by default after `B1`.
   - `B1 raw @ 0.9` slightly outperforms the deployment variant on `IoU/F1` while matching its high precision.
-  - The promoted `TS-bank @ 0.6` row now serves as the main zero-label mitigation result, while `B1 raw @ 0.9` remains the high-precision comparison point.
+  - The promoted `TS-bank @ 0.6` row now serves as the main `GT`-filtered mitigation result, while `B1 raw @ 0.9` remains the high-precision comparison point.
 - The target-domain upper bound is now close to `IoU 0.60`, which is much higher than both the source-only baseline and `B1`.
   - This strongly suggests that the main bottleneck is the domain gap itself rather than the intrinsic impossibility of the UAV task.
 - `B2` now shows that the domain gap is highly correctable with limited target supervision.
@@ -399,6 +445,46 @@ Current interpretation:
   - matched random-background control = mechanism check showing that generic target-background exposure explains a substantial share of the gain, while any extra mined-bank value remains model-dependent rather than universal
   - few-shot fine-tuning = supervision-efficiency curve for closing the remaining domain gap
   - target-domain upper bound = ceiling reference that quantifies the remaining gap after cross-domain mitigation
+
+Source-domain retention and `Kaggle test` uncertainty follow-up on `2026-05-09`:
+
+- Assets were generated with `scripts/reports/make_retention_report_assets.py` and saved under `results/report_assets/source_retention/`.
+- The follow-up reused the frozen `SegFormer-B2` checkpoints for:
+  - `source_only @ 0.5`
+  - promoted `B1 TS-bank @ 0.6`
+  - legacy `B1 raw @ 0.7`
+  - `B2 fs05 / fs10 / fs20 @ 0.5`
+- `Crack500 test` (`1124` images) was used as the source-domain retention back-test.
+- `UAV_Crack_Segmentation_Kaggle test` (`63` images) was evaluated with `5000` image-level bootstrap resamples to estimate `95%` confidence intervals.
+- The report also includes an optional lightweight morphological skeleton metric to check whether centerline quality follows the same trend as region metrics.
+- Point estimates in this report are recomputed from per-image `tp / fp / fn` sums so they stay consistent with the bootstrap pipeline; they can therefore differ slightly from older batch-averaged rows in `results/experiments.csv`.
+
+Key results:
+
+- Source-only reference:
+  - `Crack500 IoU = 0.5988`, `F1 = 0.7491`
+  - `Kaggle IoU = 0.1394`, `F1 = 0.2447`, `95% CI [0.0982, 0.1929]`
+- Promoted `B1 TS-bank @ 0.6`:
+  - `Crack500 IoU = 0.5745`, which keeps `95.9%` of the source-only `IoU`
+  - `Kaggle IoU = 0.3832`, gain `+0.2437` vs source-only, `95% CI [0.3035, 0.4592]`
+- Legacy `B1 raw @ 0.7`:
+  - `Crack500 IoU = 0.5792`, which keeps `96.7%` of the source-only `IoU`
+  - `Kaggle IoU = 0.3539`, gain `+0.2145` vs source-only, `95% CI [0.2613, 0.4526]`
+- `B2 fs05 / fs10 / fs20`:
+  - `Crack500 IoU = 0.5458 / 0.5281 / 0.5173`
+  - source-domain retention = `91.2% / 88.2% / 86.4%`
+  - `Kaggle IoU = 0.5165 / 0.5506 / 0.5764`
+  - `Kaggle IoU 95% CI = [0.4672, 0.5590] / [0.5007, 0.5935] / [0.5236, 0.6238]`
+- Optional skeleton follow-up:
+  - `Crack500 skeleton F1` stays roughly flat around `0.13`
+  - `Kaggle skeleton F1` rises monotonically from `0.1838` to `0.3989`
+
+Interpretation after the retention and CI follow-up:
+
+- `B1` remains the best low-cost transfer step: it gives a large target-domain gain while only reducing `Crack500 IoU` by about `2% - 4%`.
+- The promoted `TS-bank @ 0.6` checkpoint is slightly less source-preserving than the older `B1 raw @ 0.7`, but it is clearly stronger on the target domain, so it remains the correct official `B1` row.
+- `B2` produces a smooth supervision-efficiency tradeoff rather than catastrophic forgetting: target-domain quality rises monotonically while source-domain `IoU` declines gradually from `91.2%` to `86.4%` retention.
+- The `fs10` and `fs20` bootstrap intervals still overlap, so the direction of improvement is clear, but small differences inside the top end of the `B2` curve should be discussed with uncertainty attached rather than as absolute rankings.
 
 ## Environment
 
@@ -441,12 +527,17 @@ Current interpretation:
 14. Keep `SegFormer-B2 B1 raw @ 0.9` as the high-precision operating point and keep `B1` deployment only as comparison rows that show how little extra value the old postprocess switch adds after calibration.
 15. Retire the old validation-only wording:
    - `segformer_b2_b1_tsbank_thr080_mean082` and `deeplabv3plus_b1_tsbank_autofilter_area1200_uavval` have now completed confirmatory hold-out promotion.
-16. Treat the current zero-label `B1`, few-shot `B2`, and upper-bound rows as frozen paper-facing results unless a new ablation is explicitly needed.
+16. Treat the current `GT`-filtered `B1`, few-shot `B2`, and upper-bound rows as frozen paper-facing results unless a new ablation is explicitly needed.
 17. Prepare the final paper-facing comparison assets:
    - source-only vs `B1` vs `B2` vs upper bound main table
    - `B2` supervision-scaling curve
    - representative qualitative figure set
 18. Treat the current training, testing, split-generation, hard-negative-mining, and experiment-logging code paths as frozen unless a new paper-facing need appears.
+19. Freeze `results/report_assets/source_retention/` as the paper-facing support package for source-retention and uncertainty claims:
+   - `combined_summary.csv`
+   - `summary.md`
+   - per-stage `Crack500` retention and `Kaggle` bootstrap tables
+20. When comparing close `UAV test` rows, cite the bootstrap intervals alongside point estimates, especially for late `B2` comparisons such as `fs10` vs `fs20`.
 
 Important evaluation rule:
 
@@ -459,15 +550,29 @@ Important evaluation rule:
 ```text
 .
 ├── DATASETS.md             # dataset setup and redistribution notes
+├── environment.yml         # main public environment
+├── environment-daformer.yml  # DAFormer/HRDA compatibility environment
 ├── dataset.py              # dataset loader and transforms
 ├── model.py                # segmentation model factory
 ├── loss.py                 # training loss
 ├── metrics.py              # evaluation metrics
 ├── postprocess.py          # optional deployment-oriented output filtering
-├── check_dataset.py        # dataset sanity checks and visualizations
+├── b1_bank_configs/        # public B1 presets and wrapper
+├── evaluation/             # public evaluation entrypoints
+├── figures_generation/     # public figure-generation entrypoints
+├── split_manifests/        # tracked fixed split files
+├── b1_mining_and_filtering.py  # top-level B1 wrapper
+├── threshold_selection.py  # top-level threshold-selection wrapper
+├── evaluate_fixed_test.py  # top-level fixed-test wrapper
 ├── train.py                # training entry point
 ├── test.py                 # test-set evaluation from saved checkpoint
+├── scripts/
+│   ├── data/               # dataset prep, splitting, and sanity-check utilities
+│   ├── banks/              # hard-negative mining, export, and audit helpers
+│   ├── reports/            # paper/report asset generators
+│   └── experiments/        # reusable experiment shell entry points
 ├── notebooks/              # EDA and qualitative visualization notebooks
 ├── results/                # experiment logs and paper-facing report assets
+├── generated/              # generated banks and diagnostics
 └── docs/                   # planning and baseline records
 ```

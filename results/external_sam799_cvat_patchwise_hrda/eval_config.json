@@ -1,0 +1,37 @@
+{
+  "dataset": "SAM799-CVAT",
+  "dataset_role": "fixed external test only",
+  "split_name": "external_test",
+  "evaluation_scope": "full_external_test",
+  "num_images": 53,
+  "num_positive": 47,
+  "num_empty_negative": 6,
+  "image_resolution": "4032x3024",
+  "image_resolutions": [
+    "4032x3024"
+  ],
+  "used_for_training": false,
+  "used_for_validation": false,
+  "used_for_threshold_selection": false,
+  "patch_size": 512,
+  "stride": 384,
+  "model_input_size": 360,
+  "patch_batch_size": 1,
+  "stitching": "probability_average",
+  "threshold_policy": "predefined from primary Kaggle validation protocol",
+  "stages": [
+    {
+      "key": "hrda",
+      "label": "HRDA (MiT-B5)",
+      "checkpoint_path": "/home/jakeguan/dev/crack-detection/work_dirs/hrda_crack500_to_uav_mitb5_s0_360/iter_40000.pth",
+      "threshold": 0.3,
+      "config_path": "/home/jakeguan/dev/crack-detection/configs/hrda/crack500_to_uav_hrda_mitb5_s0.py",
+      "mmseg_root": "/home/jakeguan/dev/crack-detection/external/HRDA",
+      "model_name": "HRDA",
+      "postprocess_min_area": 0,
+      "postprocess_max_fill_ratio": 1.0,
+      "postprocess_min_aspect_ratio": 1.0,
+      "postprocess_max_components": 0
+    }
+  ]
+}

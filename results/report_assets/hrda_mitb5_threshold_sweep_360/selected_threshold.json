@@ -1,0 +1,32 @@
+{
+  "config": "/home/jakeguan/dev/crack-detection/configs/hrda/crack500_to_uav_hrda_mitb5_s0.py",
+  "checkpoint": "/home/jakeguan/dev/crack-detection/work_dirs/hrda_crack500_to_uav_mitb5_s0_360/iter_40000.pth",
+  "selection_metric": "iou",
+  "threshold_candidates": [
+    0.1,
+    0.2,
+    0.3,
+    0.4,
+    0.5,
+    0.6,
+    0.7,
+    0.8,
+    0.9
+  ],
+  "selected_threshold": 0.3,
+  "selected_val_metrics": {
+    "threshold": 0.3,
+    "iou": 0.08399931733490654,
+    "f1": 0.15498038788650545,
+    "precision": 0.08631958441440579,
+    "recall": 0.7575745301375012
+  },
+  "test_metrics": {
+    "threshold": 0.3,
+    "iou": 0.11430333911556814,
+    "f1": 0.20515659444388853,
+    "precision": 0.11911066954495837,
+    "recall": 0.7390451548300341
+  },
+  "metric_definition": "foreground crack metrics from class-1 softmax probability thresholding"
+}

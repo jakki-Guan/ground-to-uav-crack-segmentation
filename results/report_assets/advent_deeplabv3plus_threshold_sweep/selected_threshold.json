@@ -1,0 +1,33 @@
+{
+  "checkpoint_path": "/home/jakeguan/dev/crack-detection/checkpoints/advent_deeplabv3plus_crack500_to_uav.pth",
+  "dataset_root": "UAV_Crack_Segmentation_Kaggle",
+  "val_split": "val",
+  "test_split": "test",
+  "selection_metric": "iou",
+  "threshold_candidates": [
+    0.1,
+    0.2,
+    0.3,
+    0.4,
+    0.5,
+    0.6,
+    0.7,
+    0.8,
+    0.9
+  ],
+  "selected_threshold": 0.9,
+  "selected_val_metrics": {
+    "loss": 0.9001569624931093,
+    "iou": 0.2035797978677447,
+    "f1": 0.3157304889625973,
+    "precision": 0.24546921182246434,
+    "recall": 0.5003037537847247
+  },
+  "test_metrics": {
+    "loss": 0.8967763795739129,
+    "iou": 0.20222414438686673,
+    "f1": 0.30762387646569145,
+    "precision": 0.24267871228475418,
+    "recall": 0.48447630140516496
+  }
+}

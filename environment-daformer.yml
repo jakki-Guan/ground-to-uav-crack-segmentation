@@ -1,0 +1,19 @@
+name: crack-detection-daformer
+channels:
+  - conda-forge
+dependencies:
+  - python=3.10
+  - pip
+  - numpy=1.23.5
+  - pillow
+  - opencv=4.8.*
+  - pip:
+      - albumentations<2
+      - huggingface-hub
+      - kornia==0.6.12
+      - mmcv==1.4.0
+      - pyyaml
+      - timm==0.6.13
+      - torch==2.0.1
+      - torchvision==0.15.2
+      - yapf==0.31.0

@@ -1,0 +1,33 @@
+{
+  "checkpoint_path": "/home/jakeguan/dev/crack-detection/checkpoints/segformer_b2_plain_360.pth",
+  "dataset_root": "UAV_Crack_Segmentation_Kaggle",
+  "val_split": "val",
+  "test_split": "test",
+  "selection_metric": "iou",
+  "threshold_candidates": [
+    0.1,
+    0.2,
+    0.3,
+    0.4,
+    0.5,
+    0.6,
+    0.7,
+    0.8,
+    0.9
+  ],
+  "selected_threshold": 0.9,
+  "selected_val_metrics": {
+    "loss": 0.9225091442229256,
+    "iou": 0.22262941986795456,
+    "f1": 0.33809529883520945,
+    "precision": 0.2713616935033647,
+    "recall": 0.5266381937360006
+  },
+  "test_metrics": {
+    "loss": 0.9582920736736722,
+    "iou": 0.17690526303790866,
+    "f1": 0.2877091519416325,
+    "precision": 0.20499508201129854,
+    "recall": 0.5301979013851711
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "dataset": "SAM799-CVAT",
+  "dataset_role": "fixed external test only",
+  "split_name": "external_test",
+  "evaluation_scope": "full_external_test",
+  "num_images": 53,
+  "num_positive": 47,
+  "num_empty_negative": 6,
+  "image_resolution": "4032x3024",
+  "image_resolutions": [
+    "4032x3024"
+  ],
+  "used_for_training": false,
+  "used_for_validation": false,
+  "used_for_threshold_selection": false,
+  "patch_size": 512,
+  "stride": 384,
+  "model_input_size": 360,
+  "patch_batch_size": 8,
+  "stitching": "probability_average",
+  "threshold_policy": "predefined from primary Kaggle validation protocol",
+  "profiling": {
+    "enabled": true,
+    "time_unit": "seconds",
+    "memory_unit": "MiB",
+    "runtime_scope": "Per-image runtime covers image load, patchwise inference/stitching, and threshold/postprocess/metrics; it excludes optional prediction or overlay file writes.",
+    "predict_scope": "Predict time covers patch preprocessing, batched forward passes, resize-back, and probability averaging.",
+    "gpu_peak_scope": "Peak GPU memory is reset after model load and tracked per image."
+  },
+  "thresholds": {
+    "advent": 0.9
+  },
+  "stages": [
+    {
+      "key": "advent",
+      "label": "ADVENT (DeepLabV3+)",
+      "checkpoint_path": "/home/jakeguan/dev/crack-detection/checkpoints/advent_deeplabv3plus_crack500_to_uav.pth",
+      "threshold": 0.9,
+      "model_name": "deeplabv3plus",
+      "encoder_name": "resnet34",
+      "encoder_weights": "imagenet",
+      "pretrained_model_name": "nvidia/segformer-b2-finetuned-ade-512-512",
+      "postprocess_min_area": 0,
+      "postprocess_max_fill_ratio": 1.0,
+      "postprocess_min_aspect_ratio": 1.0,
+      "postprocess_max_components": 0
+    }
+  ]
+}

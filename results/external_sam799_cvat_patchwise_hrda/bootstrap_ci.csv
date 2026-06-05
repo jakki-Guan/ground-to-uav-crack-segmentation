@@ -1,0 +1,2 @@
+stage_key,stage_label,checkpoint_path,threshold,num_images,num_bootstrap,iou,iou_ci_low,iou_ci_high,f1,f1_ci_low,f1_ci_high,precision,precision_ci_low,precision_ci_high,recall,recall_ci_low,recall_ci_high
+hrda,HRDA (MiT-B5),/home/jakeguan/dev/crack-detection/work_dirs/hrda_crack500_to_uav_mitb5_s0_360/iter_40000.pth,0.3,53,5000,0.053716203701798214,0.040811304179999126,0.06651851588768566,0.10195573250764949,0.07842210015006325,0.12473954253309602,0.06550675664144918,0.047095874174102055,0.08594423590183327,0.22984512854705713,0.2002004036826661,0.26673188184007907

@@ -2,6 +2,8 @@ CRACK500/
 UAV_Crack_Segmentation_Kaggle/
 PaveCrack1300/
 PaveCrack1300_raw/
+SAM799/
+SAM799_CVAT/
 checkpoints/
 __pycache__/
 *.py[cod]
@@ -21,3 +23,4 @@ notebooks/02_predict.ipynb
 generated/
 tmp/
 results/hard_negative_audit/
+external/

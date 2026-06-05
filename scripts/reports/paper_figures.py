@@ -4,6 +4,7 @@ import csv
 import random
 from dataclasses import dataclass
 from pathlib import Path
+import math
 
 import matplotlib
 import numpy as np
@@ -12,8 +13,9 @@ from PIL import Image
 
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+from matplotlib.patches import FancyBboxPatch
 
-REPO_ROOT = Path(__file__).resolve().parent
+REPO_ROOT = Path(__file__).resolve().parents[2]
 
 
 @dataclass(frozen=True)
@@ -396,6 +398,7 @@ def render_dataset_overview(
     panel_width: int = 420,
     panel_height: int = 620,
     preprocess_square_size: int | None = None,
+    dpi: int = 220,
 ):
     output_path = Path(output_path)
     output_path.parent.mkdir(parents=True, exist_ok=True)
@@ -474,7 +477,7 @@ def render_dataset_overview(
     if figure_title:
         fig.suptitle(figure_title, fontsize=14, y=0.99)
     fig.subplots_adjust(left=left, right=right, top=top, bottom=bottom)
-    fig.savefig(output_path, dpi=220, bbox_inches="tight", pad_inches=0.02)
+    fig.savefig(output_path, dpi=dpi, bbox_inches="tight", pad_inches=0.02)
     plt.close(fig)
     return output_path
 
@@ -733,7 +736,8 @@ def write_b2_supervision_csv(rows: list[dict[str, object]], output_path: str | P
 def render_b2_supervision_scaling(
     rows: list[dict[str, object]],
     output_path: str | Path,
-    figure_title: str = "UAV hold-out supervision scaling: promoted B1/B2 recovery curves",
+    figure_title: str = "Few-shot UAV recovery with selected B1 and full-target references",
+    dpi: int = 220,
 ) -> Path:
     output_path = Path(output_path)
     output_path.parent.mkdir(parents=True, exist_ok=True)
@@ -780,13 +784,21 @@ def render_b2_supervision_scaling(
                 zorder=4,
             )
             ax.plot(
-                x_values,
-                [float(b1_row[metric_key])] + [float(row[metric_key]) for row in b2_rows],
+                x_values[1:],
+                [float(row[metric_key]) for row in b2_rows],
                 marker="o",
                 linewidth=2.5,
                 color=color,
-                label=f"{model} B1/B2",
+                label=f"{model} B2",
                 zorder=3,
+            )
+            ax.axhline(
+                float(b1_row[metric_key]),
+                color=color,
+                linestyle=":",
+                linewidth=1.7,
+                alpha=0.82,
+                label=f"{model} selected B1 ref.",
             )
             ax.axhline(
                 float(upper_row[metric_key]),
@@ -794,8 +806,23 @@ def render_b2_supervision_scaling(
                 linestyle="--",
                 linewidth=1.9,
                 alpha=0.85,
-                label=f"{model} upper bound",
+                label=f"{model} full-target ref.",
             )
+            if metric_key == "iou":
+                fs20_row = b2_rows[-1]
+                fs20_ratio_pct = 100.0 * float(fs20_row["iou"]) / float(upper_row["iou"])
+                y_offset = 8 if model == "SegFormer-B2" else -15
+                ax.annotate(
+                    f"{fs20_ratio_pct:.1f}%",
+                    (x_values[-1], float(fs20_row["iou"])),
+                    textcoords="offset points",
+                    xytext=(6, y_offset),
+                    ha="left",
+                    va="center",
+                    fontsize=9,
+                    fontweight="bold",
+                    color=color,
+                )
 
         ax.set_title(metric_title)
         ax.set_xlabel("Labeled UAV train samples")
@@ -806,6 +833,542 @@ def render_b2_supervision_scaling(
     axes[0].legend(frameon=False, fontsize=9, loc="lower right")
     fig.suptitle(figure_title, fontsize=14)
     fig.tight_layout()
-    fig.savefig(output_path, dpi=220, bbox_inches="tight")
+    fig.savefig(output_path, dpi=dpi, bbox_inches="tight")
+    plt.close(fig)
+    return output_path
+
+
+def b2_supervision_scaling_caption_text() -> str:
+    return (
+        "Supervision-scaling comparison on the fixed UAV hold-out split. Cross markers show the "
+        "source-only baselines, dotted horizontal lines show the selected B1 references, solid lines "
+        "show B2 few-shot performance as target labels increase from fs05 to fs20, and dashed lines "
+        "denote the full-target references. B1 is shown as the first target-aware mitigation without "
+        "target-positive supervision in the training loss and serves as a comparison reference for "
+        "the B2 trajectory rather than as its starting point. B2 instead fine-tunes from the frozen "
+        "source checkpoint and gradually approaches the full-target references as limited UAV labels "
+        "are added."
+    )
+
+
+def setting_overview_caption_text() -> str:
+    return (
+        "Overview of the four reporting settings used in this study. All settings share the "
+        "same fixed UAV hold-out evaluation protocol, but differ in training data, target-label "
+        "use, and intended role: source-only quantifies the raw transfer gap, B1 adds GT-filtered "
+        "target-background exposure without target-positive supervision in the loss, B2 measures "
+        "few-shot recovery under limited UAV labels, and the upper-bound setting estimates the "
+        "in-domain ceiling."
+    )
+
+
+EXTERNAL_SAM799_DEFAULT_STAGE_ORDER: tuple[tuple[str, str], ...] = (
+    ("source_only", "Source-only"),
+    ("b1_selected", "B1 selected"),
+    ("b2_fs10", "B2 fs10"),
+)
+
+EXTERNAL_SAM799_DEFAULT_SAMPLE_IDS: tuple[str, ...] = (
+    "DJI_0040_JPG.rf.jnnqKrO8jgxJLCKk4cHu",
+    "DJI_0069_JPG.rf.WxOwzvxUj9I8ZXZzzVnv",
+    "DJI_0079_JPG.rf.HDj5tYHdB4LI2GY8gtun",
+    "DJI_0051_JPG.rf.LO7UAj3Wx3GU9KtWH7O0",
+)
+
+
+def load_external_sam799_rows(csv_path: str | Path) -> list[dict[str, str]]:
+    with Path(csv_path).open(newline="", encoding="utf-8") as f:
+        rows = list(csv.DictReader(f))
+    if not rows:
+        raise ValueError(f"No rows found in {csv_path}")
+    return rows
+
+
+def summarize_external_sam799_rows(
+    per_image_csv: str | Path,
+    aggregate_csv: str | Path | None = None,
+) -> list[dict[str, object]]:
+    per_image_rows = load_external_sam799_rows(per_image_csv)
+    if aggregate_csv is None:
+        aggregate_by_stage = {}
+    else:
+        with Path(aggregate_csv).open(newline="", encoding="utf-8") as f:
+            aggregate_rows = list(csv.DictReader(f))
+        aggregate_by_stage = {row["stage_key"]: row for row in aggregate_rows}
+
+    grouped: dict[str, list[dict[str, str]]] = {}
+    for row in per_image_rows:
+        grouped.setdefault(row["stage_key"], []).append(row)
+
+    summaries: list[dict[str, object]] = []
+    for stage_key, rows in sorted(grouped.items()):
+        empty_rows = [row for row in rows if row["empty_gt"] == "true"]
+        nonempty_rows = [row for row in rows if row["empty_gt"] == "false"]
+        aggregate = aggregate_by_stage.get(stage_key, {})
+        summaries.append(
+            {
+                "stage_key": stage_key,
+                "stage_label": rows[0]["stage_label"],
+                "num_images": len(rows),
+                "num_empty_gt": len(empty_rows),
+                "num_nonempty_gt": len(nonempty_rows),
+                "aggregate_iou": float(aggregate["iou"]) if aggregate else math.nan,
+                "aggregate_f1": float(aggregate["f1"]) if aggregate else math.nan,
+                "aggregate_precision": float(aggregate["precision"]) if aggregate else math.nan,
+                "aggregate_recall": float(aggregate["recall"]) if aggregate else math.nan,
+                "mean_pred_ratio_all": float(np.mean([float(row["pred_ratio"]) for row in rows])),
+                "mean_pred_ratio_empty_gt": (
+                    float(np.mean([float(row["pred_ratio"]) for row in empty_rows]))
+                    if empty_rows else math.nan
+                ),
+                "mean_pred_ratio_nonempty_gt": (
+                    float(np.mean([float(row["pred_ratio"]) for row in nonempty_rows]))
+                    if nonempty_rows else math.nan
+                ),
+                "zero_prediction_on_empty_gt": sum(float(row["pred_pixels"]) == 0 for row in empty_rows),
+            }
+        )
+    return summaries
+
+
+def select_external_sam799_samples(
+    per_image_csv: str | Path,
+    reference_stage: str = "source_only",
+    comparison_stage: str = "b2_fs10",
+) -> list[dict[str, object]]:
+    rows = load_external_sam799_rows(per_image_csv)
+    by_image: dict[str, dict[str, dict[str, str]]] = {}
+    for row in rows:
+        by_image.setdefault(row["image_id"], {})[row["stage_key"]] = row
+
+    gain_candidates = []
+    empty_candidates = []
+    for image_id, stage_rows in by_image.items():
+        if reference_stage in stage_rows and comparison_stage in stage_rows:
+            ref_row = stage_rows[reference_stage]
+            cmp_row = stage_rows[comparison_stage]
+            delta = float(cmp_row["iou"]) - float(ref_row["iou"])
+            record = {
+                "image_id": image_id,
+                "empty_gt": ref_row["empty_gt"] == "true",
+                "fg_ratio": float(ref_row["fg_ratio"]),
+                "source_iou": float(ref_row["iou"]),
+                "comparison_iou": float(cmp_row["iou"]),
+                "delta_iou": delta,
+                "source_pred_ratio": float(ref_row["pred_ratio"]),
+                "comparison_pred_ratio": float(cmp_row["pred_ratio"]),
+            }
+            if record["empty_gt"]:
+                empty_candidates.append(record)
+            else:
+                gain_candidates.append(record)
+
+    gain_candidates.sort(key=lambda row: row["delta_iou"], reverse=True)
+    empty_candidates.sort(key=lambda row: row["comparison_pred_ratio"], reverse=True)
+
+    selected = []
+    if gain_candidates:
+        selected.append({"category": "Sparse gain", **gain_candidates[0]})
+    if len(gain_candidates) > 1:
+        selected.append({"category": "Typical gain", **gain_candidates[1]})
+    if len(gain_candidates) > 2:
+        selected.append({"category": "Additional gain", **gain_candidates[2]})
+    if empty_candidates:
+        selected.append({"category": "Empty negative", **empty_candidates[0]})
+    return selected
+
+
+def write_external_sam799_selection_csv(
+    rows: list[dict[str, object]],
+    output_path: str | Path,
+) -> Path:
+    output_path = Path(output_path)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    if not rows:
+        raise ValueError(f"No rows to write for {output_path}")
+
+    with output_path.open("w", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=list(rows[0].keys()))
+        writer.writeheader()
+        writer.writerows(rows)
+    return output_path
+
+
+def _stage_overlay_path(
+    external_results_root: Path,
+    stage_key: str,
+    image_id: str,
+) -> Path:
+    return external_results_root / "overlays" / stage_key / f"{image_id}_overlay.png"
+
+
+def _find_external_image_row(
+    per_image_rows: list[dict[str, str]],
+    image_id: str,
+    stage_key: str = "source_only",
+) -> dict[str, str]:
+    for row in per_image_rows:
+        if row["image_id"] == image_id and row["stage_key"] == stage_key:
+            return row
+    raise KeyError(f"Could not find {image_id} for stage {stage_key} in per-image CSV.")
+
+
+def _load_external_image_and_gt(
+    dataset_root: Path,
+    per_image_rows: list[dict[str, str]],
+    image_id: str,
+) -> tuple[dict[str, str], np.ndarray, np.ndarray]:
+    source_row = _find_external_image_row(per_image_rows, image_id=image_id, stage_key="source_only")
+    image = np.array(Image.open(dataset_root / source_row["image_path"]).convert("RGB"), dtype=np.uint8)
+    gt_mask = np.array(Image.open(dataset_root / source_row["mask_path"]).convert("1"), dtype=np.uint8)
+    gt_overlay = _build_overlay(image=image, mask=gt_mask)
+    return source_row, image, gt_overlay
+
+
+def render_external_sam799_qualitative_grid(
+    dataset_root: str | Path,
+    external_results_root: str | Path,
+    per_image_csv: str | Path,
+    output_path: str | Path,
+    sample_ids: tuple[str, ...] | list[str] = EXTERNAL_SAM799_DEFAULT_SAMPLE_IDS,
+    stage_order: tuple[tuple[str, str], ...] | list[tuple[str, str]] = EXTERNAL_SAM799_DEFAULT_STAGE_ORDER,
+    figure_title: str = "SAM799 external patchwise predictions: input, GT, and fixed-stage overlays",
+    row_label_mode: str = "fg_ratio",
+    dpi: int = 220,
+):
+    dataset_root = resolve_dataset_root(dataset_root)
+    external_results_root = Path(external_results_root).resolve()
+    per_image_rows = load_external_sam799_rows(per_image_csv)
+    output_path = Path(output_path)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    columns = [("input", "Input"), ("gt", "Ground Truth"), *stage_order]
+    num_rows = len(sample_ids)
+    num_cols = len(columns)
+
+    fig, axes = plt.subplots(
+        num_rows,
+        num_cols,
+        figsize=(3.2 * num_cols, 2.8 * num_rows),
+        gridspec_kw={"wspace": 0.02, "hspace": 0.08},
+    )
+    if num_rows == 1:
+        axes = np.array([axes])
+
+    for row_idx, image_id in enumerate(sample_ids):
+        source_row, image, gt_overlay = _load_external_image_and_gt(
+            dataset_root=dataset_root,
+            per_image_rows=per_image_rows,
+            image_id=image_id,
+        )
+
+        fg_ratio = float(source_row["fg_ratio"]) * 100.0
+        empty_gt = source_row["empty_gt"] == "true"
+        if row_label_mode == "fg_ratio":
+            row_label = f"{image_id}\nfg={fg_ratio:.2f}%"
+        else:
+            row_label = image_id
+        if empty_gt:
+            row_label += "\nempty GT"
+
+        for col_idx, (column_key, column_label) in enumerate(columns):
+            ax = axes[row_idx, col_idx]
+            ax.axis("off")
+
+            if column_key == "input":
+                ax.imshow(image)
+            elif column_key == "gt":
+                ax.imshow(gt_overlay)
+            else:
+                overlay_path = _stage_overlay_path(
+                    external_results_root=external_results_root,
+                    stage_key=column_key,
+                    image_id=image_id,
+                )
+                if not overlay_path.exists():
+                    raise FileNotFoundError(f"Missing overlay image: {overlay_path}")
+                ax.imshow(np.array(Image.open(overlay_path).convert("RGB"), dtype=np.uint8))
+
+            if row_idx == 0:
+                ax.set_title(column_label, fontsize=11, fontweight="bold", pad=6)
+
+            if col_idx == 0:
+                ax.text(
+                    -0.05,
+                    0.5,
+                    row_label,
+                    transform=ax.transAxes,
+                    rotation=90,
+                    va="center",
+                    ha="right",
+                    fontsize=9,
+                    fontweight="bold",
+                )
+
+    fig.suptitle(figure_title, fontsize=14, y=0.995)
+    fig.subplots_adjust(left=0.06, right=0.995, top=0.93, bottom=0.03, wspace=0.02, hspace=0.08)
+    fig.savefig(output_path, dpi=dpi, bbox_inches="tight")
+    plt.close(fig)
+    return output_path
+
+
+def external_sam799_qualitative_caption_text() -> str:
+    return (
+        "Qualitative external evaluation on the self-collected SAM799-CVAT UAV set. "
+        "Each row shows one 4K image from the fixed external test, with the raw input, "
+        "ground-truth crack overlay, and stage-specific prediction overlays. Prediction "
+        "colors follow the deployment audit convention: true positive = green, false positive = red, "
+        "and false negative = yellow."
+    )
+
+
+def render_external_sam799_single_case(
+    dataset_root: str | Path,
+    external_results_root: str | Path,
+    per_image_csv: str | Path,
+    output_path: str | Path,
+    image_id: str,
+    stage_order: tuple[tuple[str, str], ...] | list[tuple[str, str]] = EXTERNAL_SAM799_DEFAULT_STAGE_ORDER,
+    figure_title: str | None = None,
+    sample_note_mode: str = "none",
+    gt_column_label: str = "GT overlay",
+    dpi: int = 220,
+) -> Path:
+    dataset_root = resolve_dataset_root(dataset_root)
+    external_results_root = Path(external_results_root).resolve()
+    per_image_rows = load_external_sam799_rows(per_image_csv)
+    output_path = Path(output_path)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    source_row, image, gt_overlay = _load_external_image_and_gt(
+        dataset_root=dataset_root,
+        per_image_rows=per_image_rows,
+        image_id=image_id,
+    )
+
+    columns = [("input", "Input"), ("gt", gt_column_label), *stage_order]
+    fig, axes = plt.subplots(
+        1,
+        len(columns),
+        figsize=(3.55 * len(columns), 3.55),
+        gridspec_kw={"wspace": 0.015},
+    )
+    if len(columns) == 1:
+        axes = np.array([axes])
+
+    for ax, (column_key, column_label) in zip(axes, columns):
+        ax.axis("off")
+        if column_key == "input":
+            ax.imshow(image)
+        elif column_key == "gt":
+            ax.imshow(gt_overlay)
+        else:
+            overlay_path = _stage_overlay_path(
+                external_results_root=external_results_root,
+                stage_key=column_key,
+                image_id=image_id,
+            )
+            if not overlay_path.exists():
+                raise FileNotFoundError(f"Missing overlay image: {overlay_path}")
+            ax.imshow(np.array(Image.open(overlay_path).convert("RGB"), dtype=np.uint8))
+        ax.set_title(column_label, fontsize=11, fontweight="bold", pad=5)
+
+    fg_ratio = float(source_row["fg_ratio"]) * 100.0
+    empty_gt = source_row["empty_gt"] == "true"
+    if sample_note_mode == "fg_ratio":
+        sample_note = f"{image_id} | fg={fg_ratio:.2f}%"
+    elif sample_note_mode == "none":
+        sample_note = ""
+    else:
+        sample_note = image_id
+    if empty_gt:
+        sample_note = f"{sample_note} | empty GT".strip(" |")
+
+    if figure_title:
+        fig.suptitle(figure_title, fontsize=13.5, y=0.985)
+        fig.subplots_adjust(left=0.01, right=0.995, top=0.84, bottom=0.06, wspace=0.015)
+        if sample_note:
+            fig.text(0.5, 0.905, sample_note, ha="center", va="center", fontsize=10, color="#374151")
+    else:
+        bottom = 0.055 if sample_note else 0.02
+        fig.subplots_adjust(left=0.01, right=0.995, top=0.90, bottom=bottom, wspace=0.015)
+        if sample_note:
+            fig.text(0.5, 0.02, sample_note, ha="center", va="bottom", fontsize=9.5, color="#374151")
+
+    fig.savefig(output_path, dpi=dpi, bbox_inches="tight", pad_inches=0.02)
+    plt.close(fig)
+    return output_path
+
+
+def external_sam799_single_case_caption_text() -> str:
+    return (
+        "Representative SAM799-CVAT full-resolution external test example under patch-based "
+        "inference. Columns show the raw input, the GT overlay, and stage-specific prediction "
+        "overlays. In the GT overlay, orange denotes manually annotated crack pixels overlaid on "
+        "the input image. In the prediction overlays, green denotes true positives, red denotes "
+        "false positives, and yellow denotes false negatives."
+    )
+
+
+def render_setting_overview(
+    output_path: str | Path,
+    figure_title: str = "Problem-setting overview: four transfer settings on UAV crack segmentation",
+    dpi: int = 220,
+) -> Path:
+    output_path = Path(output_path)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    cards = [
+        {
+            "title": "Source-only",
+            "subtitle": "Zero-shot transfer gap",
+            "train_on": "Crack500 train",
+            "init_from": "Pretrained model",
+            "uav_labels": "None",
+            "test_on": "Fixed UAV test (63 images)",
+            "role": "Raw deployment baseline",
+            "color": "#3b82f6",
+            "label_badge": "#dbeafe",
+        },
+        {
+            "title": "B1",
+            "subtitle": "Low-cost mitigation",
+            "train_on": "Crack500 train\n+ GT-filtered UAV\nbackground bank",
+            "init_from": "Source-style mixed\ntraining",
+            "uav_labels": "GT masks only for\nbank filtering",
+            "test_on": "Fixed UAV test (63 images)",
+            "role": "Target nuisance exposure\nwithout target-positive loss",
+            "color": "#f59e0b",
+            "label_badge": "#fef3c7",
+        },
+        {
+            "title": "B2",
+            "subtitle": "Few-shot recovery",
+            "train_on": "UAV fs05 / fs10 / fs20\ntrain subsets",
+            "init_from": "Source checkpoint",
+            "uav_labels": "Few-shot labels\n(9 / 19 / 38 images)",
+            "test_on": "Fixed UAV test (63 images)",
+            "role": "Supervision-efficiency\nrecovery curve",
+            "color": "#10b981",
+            "label_badge": "#d1fae5",
+        },
+        {
+            "title": "Upper bound",
+            "subtitle": "In-domain ceiling",
+            "train_on": "Full UAV train (189 images)",
+            "init_from": "Pretrained model",
+            "uav_labels": "Full target labels",
+            "test_on": "Fixed UAV test (63 images)",
+            "role": "Reference ceiling",
+            "color": "#8b5cf6",
+            "label_badge": "#ede9fe",
+        },
+    ]
+
+    fig, ax = plt.subplots(figsize=(16.2, 5.5))
+    ax.set_xlim(0, 1)
+    ax.set_ylim(0, 1)
+    ax.axis("off")
+
+    x_positions = [0.055, 0.29, 0.525, 0.76]
+    card_width = 0.171
+    card_height = 0.79
+    card_bottom = 0.07
+
+    field_specs = [
+        ("Train on", "train_on"),
+        ("Init", "init_from"),
+        ("UAV labels", "uav_labels"),
+        ("Test on", "test_on"),
+        ("Role", "role"),
+    ]
+
+    for idx, (x0, card) in enumerate(zip(x_positions, cards)):
+        box = FancyBboxPatch(
+            (x0, card_bottom),
+            card_width,
+            card_height,
+            boxstyle="round,pad=0.012,rounding_size=0.02",
+            linewidth=2.0,
+            edgecolor=card["color"],
+            facecolor="white",
+        )
+        ax.add_patch(box)
+
+        ax.text(
+            x0 + 0.018,
+            card_bottom + card_height - 0.055,
+            card["title"],
+            fontsize=14,
+            fontweight="bold",
+            color=card["color"],
+            ha="left",
+            va="top",
+        )
+        ax.text(
+            x0 + 0.018,
+            card_bottom + card_height - 0.105,
+            card["subtitle"],
+            fontsize=10.3,
+            color="#374151",
+            ha="left",
+            va="top",
+        )
+
+        y = card_bottom + card_height - 0.145
+        for label, key in field_specs:
+            ax.text(
+                x0 + 0.018,
+                y,
+                f"{label}:",
+                fontsize=9.5,
+                fontweight="bold",
+                color="#111827",
+                ha="left",
+                va="top",
+            )
+            value_fontsize = 8.9 if key == "role" else 9.3
+            ax.text(
+                x0 + 0.018,
+                y - 0.034,
+                str(card[key]),
+                fontsize=value_fontsize,
+                color="#374151",
+                ha="left",
+                va="top",
+                wrap=True,
+            )
+            y -= 0.132
+
+        if idx < len(cards) - 1:
+            ax.annotate(
+                "",
+                xy=(x0 + card_width + 0.026, 0.5),
+                xytext=(x0 + card_width + 0.006, 0.5),
+                arrowprops={"arrowstyle": "->", "lw": 2.8, "color": "#111827"},
+            )
+
+    if figure_title:
+        fig.suptitle(figure_title, fontsize=15, y=0.975)
+    protocol_badge = FancyBboxPatch(
+        (0.23, 0.905),
+        0.54,
+        0.04,
+        boxstyle="round,pad=0.01,rounding_size=0.012",
+        linewidth=0.0,
+        facecolor="#e5e7eb",
+    )
+    ax.add_patch(protocol_badge)
+    ax.text(
+        0.50,
+        0.925,
+        "Shared protocol: select on UAV val, then report once on fixed UAV test",
+        fontsize=10.2,
+        color="#111827",
+        ha="center",
+        va="center",
+    )
+    fig.tight_layout()
+    fig.savefig(output_path, dpi=dpi, bbox_inches="tight", pad_inches=0.04)
     plt.close(fig)
     return output_path

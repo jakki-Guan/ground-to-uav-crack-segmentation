@@ -1,0 +1,63 @@
+{
+  "dataset_root": "/home/jakeguan/dev/crack-detection/UAV_Crack_Segmentation_Kaggle",
+  "source_split": "test",
+  "full_split_name": "crossdomain_all",
+  "seed": 42,
+  "ratios": {
+    "train": 0.6,
+    "val": 0.2,
+    "test": 0.2
+  },
+  "targets": {
+    "train": 189,
+    "val": 63,
+    "test": 63
+  },
+  "prefix_targets": {
+    "DJI": {
+      "train": 5,
+      "val": 2,
+      "test": 2
+    },
+    "slide": {
+      "train": 184,
+      "val": 61,
+      "test": 61
+    }
+  },
+  "summary": {
+    "train": {
+      "count": 189,
+      "prefix_counts": {
+        "DJI": 5,
+        "slide": 184
+      },
+      "fg_ratio_mean": 0.014434086196482562,
+      "fg_ratio_median": 0.009267378826530613,
+      "fg_ratio_min": 0.0009167729591836735,
+      "fg_ratio_max": 0.10688875159438775
+    },
+    "val": {
+      "count": 63,
+      "prefix_counts": {
+        "DJI": 2,
+        "slide": 61
+      },
+      "fg_ratio_mean": 0.013667446145124716,
+      "fg_ratio_median": 0.00931720344387755,
+      "fg_ratio_min": 0.0017588089923469387,
+      "fg_ratio_max": 0.0560676419005102
+    },
+    "test": {
+      "count": 63,
+      "prefix_counts": {
+        "DJI": 2,
+        "slide": 61
+      },
+      "fg_ratio_mean": 0.01326552756519274,
+      "fg_ratio_median": 0.009222536670918368,
+      "fg_ratio_min": 0.0017388791454081632,
+      "fg_ratio_max": 0.050900829081632654
+    }
+  }
+}
